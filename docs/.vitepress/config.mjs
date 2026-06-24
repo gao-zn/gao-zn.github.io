@@ -2,7 +2,7 @@ import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  base: process.env.NODE_ENV === "production" ? "/gzn/" : "/",
+  base: "/",
   lang: "zh-Hans",
   title: "gzn的乌托邦",
   description: "一个前端工程师的思考与记录",
