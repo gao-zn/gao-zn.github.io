@@ -11,7 +11,7 @@ export default defineConfig({
     nav: [
       { text: "首页", link: "/" },
       { text: "文章", link: "/first-post" },
-      { text: "方案", link: "/mcp-feasibility-analysis" },
+      { text: "方案", link: "/mcp-agent-framework-analysis" },
     ],
 
     sidebar: [
@@ -29,8 +29,11 @@ export default defineConfig({
       {
         text: "技术方案",
         items: [
-          { text: "MCP 智能体集成框架", link: "/mcp-feasibility-analysis" },
-          { text: "Monorepo 改造可行性分析", link: "/monorepo-feasibility-analysis" },
+          { text: "MCP 智能体集成框架", link: "/mcp-agent-framework-analysis" },
+          {
+            text: "Monorepo 改造可行性分析",
+            link: "/monorepo-feasibility-analysis",
+          },
           { text: "设计稿屏幕适配方案", link: "/screen-adaptation-analysis" },
         ],
       },
