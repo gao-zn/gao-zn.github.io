@@ -31,6 +31,7 @@ export default defineConfig({
         items: [
           { text: "MCP 智能体集成框架", link: "/mcp-feasibility-analysis" },
           { text: "Monorepo 改造可行性分析", link: "/monorepo-feasibility-analysis" },
+          { text: "设计稿屏幕适配方案", link: "/screen-adaptation-analysis" },
         ],
       },
     ],
