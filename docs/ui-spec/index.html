@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataCenter Platform — UI 设计规范交付文档</title>
+<style>
+/* ========== CSS Variables (Design Tokens) ========== */
+:root {
+  --color-primary: #2575F5;
+  --color-primary-hover: #3D85F7;
+  --color-primary-active: #1A5FCF;
+  --color-primary-bg: #EBF2FE;
+  --color-primary-disabled: #A3C6FA;
+  --color-success: #52C41A;
+  --color-success-bg: #F0FAE8;
+  --color-warning: #FAAD14;
+  --color-warning-bg: #FFF8E6;
+  --color-danger: #FF4D4F;
+  --color-danger-bg: #FFF0F0;
+  --color-info: #1890FF;
+  --color-info-bg: #EBF6FF;
+  --color-text-primary: #262626;
+  --color-text-secondary: #595959;
+  --color-text-tertiary: #BFBFBF;
+  --color-text-disabled: #D9D9D9;
+  --color-text-inverse: #FFFFFF;
+  --color-bg-base: #F5F5F5;
+  --color-bg-container: #FFFFFF;
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-mask: rgba(0,0,0,0.45);
+  --color-border-base: #D9D9D9;
+  --color-border-split: #F0F0F0;
+  --color-border-light: #F5F5F5;
+  --color-chart-1: #2575F5;
+  --color-chart-2: #52C41A;
+  --color-chart-3: #FAAD14;
+  --color-chart-4: #FF4D4F;
+  --color-chart-5: #722ED1;
+  --color-chart-6: #13C2C2;
+  --color-chart-7: #EB2F96;
+  --color-chart-8: #FA8C16;
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 24px;
+  --font-size-display: 32px;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-family-code: 'SF Mono', 'Cascadia Code', 'Consolas', 'Menlo', monospace;
+  --spacing-xxs: 2px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-xxl: 32px;
+  --spacing-xxxl: 48px;
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius-base: 4px;
+  --radius-lg: 8px;
+  --radius-round: 9999px;
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+  --shadow-base: 0 3px 6px -4px rgba(0,0,0,0.12), 0 6px 16px 0 rgba(0,0,0,0.08), 0 9px 28px 8px rgba(0,0,0,0.05);
+  --shadow-lg: 0 6px 16px -8px rgba(0,0,0,0.12), 0 9px 28px 0 rgba(0,0,0,0.08), 0 12px 48px 16px rgba(0,0,0,0.05);
+  --size-control-xs: 24px;
+  --size-control-sm: 28px;
+  --size-control-base: 32px;
+  --size-control-lg: 40px;
+  --duration-fast: 100ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+  --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-in: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+
+  --sidebar-width: 260px;
+  --header-height: 56px;
+}
+
+[data-theme="dark"] {
+  --color-primary: #4D94F5;
+  --color-primary-hover: #6BA6F7;
+  --color-primary-active: #3D85F7;
+  --color-primary-bg: #1A2840;
+  --color-primary-disabled: #3D5273;
+  --color-success: #6CD932;
+  --color-success-bg: #1A3010;
+  --color-warning: #F0B832;
+  --color-warning-bg: #302810;
+  --color-danger: #F26669;
+  --color-danger-bg: #301010;
+  --color-info: #3DA0FF;
+  --color-info-bg: #102840;
+  --color-text-primary: #E8E8E8;
+  --color-text-secondary: #A6A6A6;
+  --color-text-tertiary: #666666;
+  --color-text-disabled: #4D4D4D;
+  --color-text-inverse: #1A1A1A;
+  --color-bg-base: #0D0D0D;
+  --color-bg-container: #1A1A1A;
+  --color-bg-elevated: #262626;
+  --color-bg-mask: rgba(0,0,0,0.65);
+  --color-border-base: #404040;
+  --color-border-split: #2E2E2E;
+  --color-border-light: #262626;
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.16), 0 1px 6px -1px rgba(0,0,0,0.12);
+  --shadow-base: 0 3px 6px -4px rgba(0,0,0,0.24), 0 6px 16px 0 rgba(0,0,0,0.16);
+  --shadow-lg: 0 6px 16px -8px rgba(0,0,0,0.24), 0 9px 28px 0 rgba(0,0,0,0.16);
+}
+
+/* ========== Global Styles ========== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background: var(--color-bg-base);
+  line-height: 1.6;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ========== Sidebar ========== */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--color-bg-container);
+  border-right: 1px solid var(--color-border-split);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+}
+.sidebar-header {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 1px solid var(--color-border-split);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+.sidebar-header .logo { font-size: 22px; }
+.sidebar-nav { flex: 1; padding: var(--spacing-sm) 0; }
+.sidebar-nav a {
+  display: block;
+  padding: var(--spacing-sm) var(--spacing-xl);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  transition: all var(--duration-fast) ease;
+  border-left: 3px solid transparent;
+}
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+  border-left-color: var(--color-primary);
+}
+.sidebar-nav .nav-group {
+  padding: var(--spacing-md) var(--spacing-xl) var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.sidebar-footer {
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-top: 1px solid var(--color-border-split);
+  flex-shrink: 0;
+}
+
+/* ========== Theme Toggle ========== */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  user-select: none;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+.theme-toggle .switch-track {
+  width: 44px; height: 24px;
+  border-radius: var(--radius-round);
+  background: var(--color-border-base);
+  position: relative;
+  transition: background var(--duration-base) ease;
+}
+.theme-toggle .switch-thumb {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--color-bg-container);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--duration-base) ease;
+}
+[data-theme="dark"] .theme-toggle .switch-track { background: var(--color-primary); }
+[data-theme="dark"] .theme-toggle .switch-thumb { transform: translateX(20px); }
+
+/* ========== Main Content ========== */
+.main {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  min-width: 0;
+}
+.page-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--color-bg-container);
+  border-bottom: 1px solid var(--color-border-split);
+  padding: var(--spacing-md) var(--spacing-xxl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-height);
+}
+.page-header h1 { font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); }
+.content { max-width: 1100px; padding: var(--spacing-xxl); }
+
+/* ========== Section Styles ========== */
+section { margin-bottom: var(--spacing-xxxl); }
+section h2 {
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+section h2 .section-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: var(--radius-base);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+section h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin: var(--spacing-xl) 0 var(--spacing-md);
+  color: var(--color-text-primary);
+}
+section h4 {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  margin: var(--spacing-lg) 0 var(--spacing-sm);
+}
+section p { margin-bottom: var(--spacing-md); color: var(--color-text-secondary); }
+
+/* ========== Color Swatches ========== */
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--spacing-md);
+  margin: var(--spacing-lg) 0;
+}
+.color-swatch {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border-split);
+}
+.color-swatch .preview {
+  height: 60px;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--spacing-sm);
+}
+.color-swatch .preview span {
+  background: rgba(0,0,0,0.15);
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+.color-swatch .info {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-bg-container);
+}
+.color-swatch .info .name {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-code);
+}
+.color-swatch .info .val {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  font-family: var(--font-family-code);
+}
+
+/* ========== Token Table ========== */
+.token-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--spacing-lg) 0;
+  font-size: var(--font-size-sm);
+}
+.token-table th {
+  background: var(--color-bg-base);
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  border-bottom: 2px solid var(--color-border-base);
+  white-space: nowrap;
+}
+.token-table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--color-border-split);
+  vertical-align: top;
+}
+.token-table tr:hover td { background: var(--color-primary-bg); }
+.token-table .token-name {
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+.token-table .token-val {
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-xs);
+}
+.token-table .color-dot {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(0,0,0,0.1);
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+/* ========== Component Spec Cards ========== */
+.spec-card {
+  background: var(--color-bg-container);
+  border: 1px solid var(--color-border-split);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  margin: var(--spacing-lg) 0;
+  box-shadow: var(--shadow-sm);
+}
+.spec-card h4 {
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.spec-card .badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: var(--radius-round);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+.spec-card .badge.required { background: var(--color-danger-bg); color: var(--color-danger); }
+.spec-card .badge.optional { background: var(--color-info-bg); color: var(--color-info); }
+
+/* ========== State Matrix ========== */
+.state-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  margin: var(--spacing-lg) 0;
+}
+.state-table th {
+  background: var(--color-bg-base);
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: center;
+  font-weight: var(--font-weight-semibold);
+  border: 1px solid var(--color-border-split);
+}
+.state-table th:first-child { text-align: left; }
+.state-table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border-split);
+  text-align: center;
+  font-size: var(--font-size-xs);
+}
+.state-table td:first-child {
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  white-space: nowrap;
+}
+.state-table .state-name {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--radius-round);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+.state-table .state-default { background: var(--color-info-bg); color: var(--color-info); }
+.state-table .state-hover { background: var(--color-primary-bg); color: var(--color-primary); }
+.state-table .state-active { background: #E6E0FF; color: #722ED1; }
+.state-table .state-disabled { background: var(--color-bg-base); color: var(--color-text-disabled); }
+.state-table .state-error { background: var(--color-danger-bg); color: var(--color-danger); }
+.state-table .token-ref {
+  font-family: var(--font-family-code);
+  font-size: 11px;
+  color: var(--color-primary);
+}
+
+/* ========== Component Preview ========== */
+.component-preview {
+  border: 2px dashed var(--color-border-base);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  margin: var(--spacing-lg) 0;
+  background: var(--color-bg-base);
+  position: relative;
+}
+.component-preview::before {
+  content: 'LIVE PREVIEW';
+  position: absolute;
+  top: -10px;
+  left: var(--spacing-lg);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  letter-spacing: 1px;
+}
+
+/* ========== Breadcrumb Preview ========== */
+.breadcrumb-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+.breadcrumb-preview .bc-home { color: var(--color-text-secondary); cursor: pointer; }
+.breadcrumb-preview .bc-home:hover { color: var(--color-primary); }
+.breadcrumb-preview .bc-sep { color: var(--color-text-tertiary); user-select: none; font-size: 12px; }
+.breadcrumb-preview .bc-item {
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--duration-fast);
+}
+.breadcrumb-preview .bc-item:hover { color: var(--color-primary); }
+.breadcrumb-preview .bc-current {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  cursor: default;
+}
+.breadcrumb-preview .bc-ellipsis {
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color var(--duration-fast);
+}
+.breadcrumb-preview .bc-ellipsis:hover { color: var(--color-primary); }
+
+/* ========== Table Preview ========== */
+.table-preview-wrap {
+  border: 1px solid var(--color-border-base);
+  border-radius: var(--radius-base);
+  overflow: hidden;
+}
+.table-preview-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+.table-preview-wrap thead th {
+  background: #FAFAFA;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  text-align: left;
+  font-weight: var(--font-weight-medium);
+  border-bottom: 1px solid var(--color-border-split);
+  white-space: nowrap;
+}
+[data-theme="dark"] .table-preview-wrap thead th { background: #1F1F1F; }
+.table-preview-wrap tbody td {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border-split);
+}
+.table-preview-wrap tbody tr:nth-child(even) { background: #FAFAFA; }
+[data-theme="dark"] .table-preview-wrap tbody tr:nth-child(even) { background: #1A1A1A; }
+.table-preview-wrap tbody tr:hover { background: #F5F5F5; }
+[data-theme="dark"] .table-preview-wrap tbody tr:hover { background: #262626; }
+.table-preview-wrap tbody tr.selected { background: var(--color-primary-bg); }
+.table-preview-wrap .status-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+.table-preview-wrap .status-dot.running { background: var(--color-success); }
+.table-preview-wrap .status-dot.stopped { background: var(--color-text-tertiary); }
+.table-preview-wrap .action-link {
+  color: var(--color-primary);
+  cursor: pointer;
+  margin-right: var(--spacing-lg);
+}
+.table-preview-wrap .action-link.danger { color: var(--color-danger); }
+.table-preview-wrap .action-link:hover { opacity: 0.8; }
+
+/* ========== Button Preview ========== */
+.btn-row { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; align-items: center; margin: var(--spacing-md) 0; }
+.btn-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 4px 15px;
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--duration-fast) ease;
+  user-select: none;
+}
+.btn-primary { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+.btn-primary:hover { background: var(--color-primary-hover); }
+.btn-default { background: var(--color-bg-container); color: var(--color-text-primary); border-color: var(--color-border-base); }
+.btn-default:hover { color: var(--color-primary); border-color: var(--color-primary); }
+.btn-danger { color: var(--color-danger); border-color: var(--color-danger); background: transparent; }
+.btn-danger:hover { background: var(--color-danger-bg); }
+.btn-text { color: var(--color-primary); border: none; background: transparent; padding: 4px 8px; }
+.btn-text:hover { background: var(--color-primary-bg); }
+.btn-disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+/* ========== Input Preview ========== */
+.input-preview {
+  height: var(--size-control-base);
+  padding: 0 var(--spacing-md);
+  border: 1px solid var(--color-border-base);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-base);
+  font-family: var(--font-family-base);
+  color: var(--color-text-primary);
+  background: var(--color-bg-container);
+  outline: none;
+  transition: border-color var(--duration-fast);
+  width: 220px;
+}
+.input-preview:hover { border-color: var(--color-primary); }
+.input-preview:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(37,117,245,0.2); }
+.input-preview.input-error { border-color: var(--color-danger); }
+.input-preview.input-error:focus { box-shadow: 0 0 0 2px rgba(255,77,79,0.2); }
+
+/* ========== Modal Preview ========== */
+.modal-preview-mask {
+  background: var(--color-bg-mask);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xxl);
+}
+.modal-preview-box {
+  background: var(--color-bg-container);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 400px;
+  max-width: 100%;
+}
+.modal-preview-box .modal-header {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 1px solid var(--color-border-split);
+  font-weight: var(--font-weight-semibold);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-preview-box .modal-body { padding: var(--spacing-xl); }
+.modal-preview-box .modal-footer {
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-top: 1px solid var(--color-border-split);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+}
+
+/* ========== Spacing Scale Viz ========== */
+.spacing-scale { display: flex; flex-direction: column; gap: var(--spacing-sm); margin: var(--spacing-lg) 0; }
+.spacing-scale .spacing-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+.spacing-scale .spacing-label {
+  width: 120px;
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+.spacing-scale .spacing-bar {
+  height: 8px;
+  background: var(--color-primary);
+  border-radius: var(--radius-round);
+  opacity: 0.8;
+}
+
+/* ========== Radius Viz ========== */
+.radius-scale { display: flex; gap: var(--spacing-lg); flex-wrap: wrap; margin: var(--spacing-lg) 0; }
+.radius-item { text-align: center; }
+.radius-box {
+  width: 64px; height: 64px;
+  border: 2px solid var(--color-primary);
+  margin-bottom: var(--spacing-xs);
+}
+.radius-label {
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+.radius-val { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
+
+/* ========== Tabs ========== */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--color-border-split); margin-bottom: var(--spacing-xl); }
+.tab-item {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid transparent;
+  transition: all var(--duration-fast);
+  margin-bottom: -1px;
+}
+.tab-item:hover { color: var(--color-primary); }
+.tab-item.active { color: var(--color-primary); border-bottom-color: var(--color-primary); font-weight: var(--font-weight-medium); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ========== Callout ========== */
+.callout {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-base);
+  margin: var(--spacing-lg) 0;
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+.callout-info { background: var(--color-info-bg); color: var(--color-info); border-left: 3px solid var(--color-info); }
+.callout-warning { background: var(--color-warning-bg); color: #D48806; border-left: 3px solid var(--color-warning); }
+.callout-danger { background: var(--color-danger-bg); color: var(--color-danger); border-left: 3px solid var(--color-danger); }
+.callout .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* ========== Checklist ========== */
+.checklist { list-style: none; margin: var(--spacing-md) 0; }
+.checklist li {
+  padding: var(--spacing-sm) 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.checklist li::before {
+  content: '';
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid var(--color-border-base);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+.checklist li.done { color: var(--color-text-primary); }
+.checklist li.done::before {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  content: '✓';
+  color: #fff;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* ========== Footer ========== */
+.page-footer {
+  border-top: 1px solid var(--color-border-split);
+  padding: var(--spacing-xl) var(--spacing-xxl);
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-xs);
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  .content { padding: var(--spacing-lg); }
+  section h2 { font-size: var(--font-size-xl); }
+  .color-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+}
+
+@media print {
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  body { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Sidebar ===== -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <span class="logo">📐</span> DataCenter UI Spec
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-group">总览</div>
+    <a href="#overview" class="active">规范体系</a>
+    <div class="nav-group">Design Tokens</div>
+    <a href="#tokens-colors">颜色系统</a>
+    <a href="#tokens-typography">字体系统</a>
+    <a href="#tokens-spacing">间距 & 圆角</a>
+    <a href="#tokens-shadow">阴影系统</a>
+    <div class="nav-group">组件规范</div>
+    <a href="#comp-breadcrumb">Breadcrumb 面包屑</a>
+    <a href="#comp-table">Table 表格</a>
+    <a href="#comp-button">Button 按钮</a>
+    <a href="#comp-input">Input 输入框</a>
+    <a href="#comp-modal">Modal 弹窗</a>
+    <div class="nav-group">全局规范</div>
+    <a href="#global-motion">交互动效</a>
+    <a href="#global-feedback">反馈系统</a>
+    <a href="#global-responsive">响应式断点</a>
+    <div class="nav-group">附录</div>
+    <a href="#delivery-checklist">交付自检清单</a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="theme-toggle" onclick="toggleTheme()" title="切换亮色/暗色主题">
+      <div class="switch-track"><div class="switch-thumb"></div></div>
+      <span id="theme-label">暗色模式</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== Main ===== -->
+<div class="main">
+
+<div class="page-header">
+  <h1>UI 设计规范交付文档</h1>
+  <span style="color:var(--color-text-tertiary);font-size:var(--font-size-sm);">v1.0 · 2026-07-08</span>
+</div>
+
+<div class="content">
+
+<!-- ========== OVERVIEW ========== -->
+<section id="overview">
+  <h2><span class="section-num">📋</span> 规范体系总览</h2>
+
+  <p>本规范定义了 <strong>DataCenter Platform</strong> 组件库的完整设计标准，UI 设计师和前端开发者需基于此文档协作。规范分三层递进，下层被上层引用，确保全局一致性。</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--spacing-lg);margin:var(--spacing-xl) 0;">
+    <div class="spec-card" style="border-top:3px solid var(--color-primary);">
+      <h4>🏗️ Design Tokens（原子层）</h4>
+      <p style="font-size:var(--font-size-sm);">颜色、字号、间距、圆角、阴影等全局设计变量。<br>所有组件引用这一层，不直接写死数值。</p>
+      <p style="font-size:var(--font-size-xs);color:var(--color-text-tertiary);">对应文档：01-design-tokens.md</p>
+    </div>
+    <div class="spec-card" style="border-top:3px solid var(--color-success);">
+      <h4>🧩 组件设计规范（分子层）</h4>
+      <p style="font-size:var(--font-size-sm);">每个组件的结构、尺寸、状态矩阵、边界规则。<br>参照飞书设计规范的颗粒度，补齐状态覆盖。</p>
+      <p style="font-size:var(--font-size-xs);color:var(--color-text-tertiary);">参照：飞书 Breadcrumb 组件规范</p>
+    </div>
+    <div class="spec-card" style="border-top:3px solid var(--color-warning);">
+      <h4>🎯 全局交互规范（全局层）</h4>
+      <p style="font-size:var(--font-size-sm);">动画系统、反馈机制、响应式断点、键盘交互。<br>跨组件统一的体验约定。</p>
+      <p style="font-size:var(--font-size-xs);color:var(--color-text-tertiary);">对应文档：05-interaction-spec.md</p>
+    </div>
+  </div>
+
+  <div class="callout callout-info">
+    <span class="callout-icon">💡</span>
+    <div><strong>设计工具适配</strong>：本规范兼容 Figma 和 MasterGo。<br>
+    Figma 通过 Variables + Token Studio 插件导出；MasterGo 通过「样式导出为CSS」插件 + token.json 双向同步。详见 <a href="#tokens-colors" style="color:var(--color-info);">Design Tokens → 颜色系统</a>。</div>
+  </div>
+</section>
+
+<!-- ========== DESIGN TOKENS: COLORS ========== -->
+<section id="tokens-colors">
+  <h2><span class="section-num">1</span> Design Tokens — 颜色系统</h2>
+  <p>所有颜色值必须通过 CSS Variables 引用，禁止在组件中硬编码色值。这是实现多主题切换的基础。</p>
+
+  <h3>品牌色 & 功能色</h3>
+  <div class="color-grid">
+  </div>
+
+  <h3>中性色（文字 / 背景 / 边框）</h3>
+  <div class="color-grid" id="neutral-colors"></div>
+
+  <h3>数据可视化色板</h3>
+  <div class="color-grid" id="chart-colors"></div>
+
+  <h3>完整 Token → CSS Variable 对照表</h3>
+  <table class="token-table">
+    <thead><tr><th>CSS Variable</th><th>Token Name</th><th>Light</th><th>Dark</th><th>用途</th></tr></thead>
+    <tbody id="token-table-body"></tbody>
+  </table>
+</section>
+
+<!-- ========== DESIGN TOKENS: TYPOGRAPHY ========== -->
+<section id="tokens-typography">
+  <h2><span class="section-num">2</span> Design Tokens — 字体系统</h2>
+
+  <h3>字号层级</h3>
+  <table class="token-table">
+    <thead><tr><th>CSS Variable</th><th>字号</th><th>行高</th><th>预览</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td class="token-name">--font-size-xs</td><td>12px</td><td>20px</td><td><span style="font-size:12px;">标签、辅助说明</span></td><td>标签、Badge</td></tr>
+      <tr><td class="token-name">--font-size-sm</td><td>13px</td><td>22px</td><td><span style="font-size:13px;">表单 label、表格内容</span></td><td>表单、表格</td></tr>
+      <tr><td class="token-name">--font-size-base</td><td>14px</td><td>22px</td><td><span style="font-size:14px;">正文、按钮、输入框</span></td><td>正文（默认）</td></tr>
+      <tr><td class="token-name">--font-size-lg</td><td>16px</td><td>24px</td><td><span style="font-size:16px;">小标题、卡片标题</span></td><td>小标题</td></tr>
+      <tr><td class="token-name">--font-size-xl</td><td>20px</td><td>28px</td><td><span style="font-size:20px;">弹窗标题、页面标题</span></td><td>标题</td></tr>
+      <tr><td class="token-name">--font-size-xxl</td><td>24px</td><td>32px</td><td><span style="font-size:24px;">页面大标题</span></td><td>大标题</td></tr>
+      <tr><td class="token-name">--font-size-display</td><td>32px</td><td>40px</td><td><span style="font-size:32px;">统计数字</span></td><td>展示数字</td></tr>
+    </tbody>
+  </table>
+
+  <h3>字重</h3>
+  <table class="token-table">
+    <thead><tr><th>CSS Variable</th><th>值</th><th>预览</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td class="token-name">--font-weight-regular</td><td>400</td><td><span style="font-weight:400;">正文 Regular</span></td><td>正文</td></tr>
+      <tr><td class="token-name">--font-weight-medium</td><td>500</td><td><span style="font-weight:500;">加粗 Medium</span></td><td>表头、加粗文字</td></tr>
+      <tr><td class="token-name">--font-weight-semibold</td><td>600</td><td><span style="font-weight:600;">标题 Semibold</span></td><td>标题</td></tr>
+      <tr><td class="token-name">--font-weight-bold</td><td>700</td><td><span style="font-weight:700;">强调 Bold</span></td><td>强调数据</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========== DESIGN TOKENS: SPACING ========== -->
+<section id="tokens-spacing">
+  <h2><span class="section-num">3</span> Design Tokens — 间距 & 圆角</h2>
+
+  <h3>间距体系（4px 基准）</h3>
+  <div class="spacing-scale" id="spacing-scale"></div>
+
+  <h3>圆角体系</h3>
+  <div class="radius-scale" id="radius-scale"></div>
+
+  <h3>组件尺寸</h3>
+  <table class="token-table">
+    <thead><tr><th>Token</th><th>高度</th><th>预览</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td class="token-name">--size-control-xs</td><td>24px</td><td><div style="height:24px;width:80px;background:var(--color-primary-bg);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:11px;">XS</div></td><td>紧凑型</td></tr>
+      <tr><td class="token-name">--size-control-sm</td><td>28px</td><td><div style="height:28px;width:80px;background:var(--color-primary-bg);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:12px;">SM</div></td><td>小型</td></tr>
+      <tr><td class="token-name">--size-control-base</td><td>32px</td><td><div style="height:32px;width:80px;background:var(--color-primary-bg);border-radius:var(--radius-base);display:flex;align-items:center;justify-content:center;font-size:13px;">BASE</div></td><td>默认</td></tr>
+      <tr><td class="token-name">--size-control-lg</td><td>40px</td><td><div style="height:40px;width:80px;background:var(--color-primary-bg);border-radius:var(--radius-base);display:flex;align-items:center;justify-content:center;font-size:14px;">LG</div></td><td>大型</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========== DESIGN TOKENS: SHADOW ========== -->
+<section id="tokens-shadow">
+  <h2><span class="section-num">4</span> Design Tokens — 阴影系统</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--spacing-lg);margin:var(--spacing-xl) 0;">
+    <div class="spec-card" id="shadow-none-preview"><h4>None</h4><p style="font-family:var(--font-family-code);font-size:var(--font-size-xs);">none</p><p>默认无阴影</p></div>
+    <div class="spec-card" id="shadow-sm-preview"><h4>Small</h4><p style="font-family:var(--font-family-code);font-size:var(--font-size-xs);">--shadow-sm</p><p>卡片、表格行 hover</p></div>
+    <div class="spec-card" id="shadow-base-preview"><h4>Base</h4><p style="font-family:var(--font-family-code);font-size:var(--font-size-xs);">--shadow-base</p><p>下拉面板、气泡</p></div>
+    <div class="spec-card" id="shadow-lg-preview"><h4>Large</h4><p style="font-family:var(--font-family-code);font-size:var(--font-size-xs);">--shadow-lg</p><p>弹窗、抽屉</p></div>
+  </div>
+</section>
+
+<!-- ========== COMPONENT: BREADCRUMB ========== -->
+<section id="comp-breadcrumb">
+  <h2><span class="section-num">5</span> 组件 — Breadcrumb 面包屑</h2>
+  <p>参照飞书开放平台设计规范颗粒度，补齐状态矩阵和双主题适配。</p>
+
+  <div class="tabs" id="breadcrumb-tabs">
+    <div class="tab-item active" data-tab="bc-preview">📱 实时预览</div>
+    <div class="tab-item" data-tab="bc-structure">📐 组成结构</div>
+    <div class="tab-item" data-tab="bc-states">🎨 状态矩阵</div>
+  </div>
+
+  <div class="tab-content active" id="bc-preview">
+    <div class="component-preview">
+      <p style="margin-bottom:10px;font-weight:var(--font-weight-medium);">正常路径（无折叠）</p>
+      <div class="breadcrumb-preview">
+        <span class="bc-home">🏠</span>
+        <span class="bc-sep">&gt;</span>
+        <span class="bc-item">数据管理</span>
+        <span class="bc-sep">&gt;</span>
+        <span class="bc-item">数据中心</span>
+        <span class="bc-sep">&gt;</span>
+        <span class="bc-current">数据建模详情</span>
+      </div>
+      <p style="margin:20px 0 10px;font-weight:var(--font-weight-medium);">超长路径（折叠态）</p>
+      <div class="breadcrumb-preview">
+        <span class="bc-home">🏠</span>
+        <span class="bc-sep">&gt;</span>
+        <span class="bc-item">数据管理</span>
+        <span class="bc-sep">&gt;</span>
+        <span class="bc-ellipsis" title="质量管理 / 数据标准 / 元数据">···</span>
+        <span class="bc-sep">&gt;</span>
+        <span class="bc-current">数据建模详情</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="bc-structure">
+    <div class="spec-card">
+      <table class="token-table">
+        <thead><tr><th>要素</th><th>说明</th><th>必选</th></tr></thead>
+        <tbody>
+          <tr><td>首页图标</td><td>固定最左侧，点击回首页</td><td><span class="badge required">必选</span></td></tr>
+          <tr><td>层级文本</td><td>每级页面名称，最后一级外均可点击</td><td><span class="badge required">必选</span></td></tr>
+          <tr><td>分割符</td><td>> 或 /，分隔层级</td><td><span class="badge required">必选</span></td></tr>
+          <tr><td>省略符 ···</td><td>层级过多时折叠，hover 气泡展示</td><td><span class="badge optional">条件必选</span></td></tr>
+          <tr><td>当前层级</td><td>最后一级，不可点击，字重加粗</td><td><span class="badge required">必选</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tab-content" id="bc-states">
+    <div class="spec-card">
+      <h4 style="margin-top:0;">层级文本状态矩阵</h4>
+      <table class="state-table">
+        <thead><tr><th>状态</th><th>文字色</th><th>字重</th><th>光标</th><th>下划线</th></tr></thead>
+        <tbody>
+          <tr><td><span class="state-name state-default">Default</span></td><td class="token-ref">--color-text-secondary</td><td>Regular</td><td>pointer</td><td>无</td></tr>
+          <tr><td><span class="state-name state-hover">Hover</span></td><td class="token-ref">--color-primary</td><td>Regular</td><td>pointer</td><td>无</td></tr>
+          <tr><td><span class="state-name state-active">Active</span></td><td class="token-ref">--color-primary-active</td><td>Regular</td><td>pointer</td><td>无</td></tr>
+          <tr><td><span class="state-name" style="background:var(--color-bg-base);color:var(--color-text-primary);">Current</span></td><td class="token-ref">--color-text-primary</td><td>Semibold</td><td>default</td><td>无</td></tr>
+          <tr><td><span class="state-name state-disabled">Disabled</span></td><td class="token-ref">--color-text-disabled</td><td>Regular</td><td>not-allowed</td><td>无</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ========== COMPONENT: TABLE ========== -->
+<section id="comp-table">
+  <h2><span class="section-num">6</span> 组件 — Table 表格</h2>
+  <p>基于 DataCenter Platform 项目中 <code>BasicTable.vue</code> 的实际封装场景。底层依赖 ant-design-vue <code>a-table</code>。</p>
+
+  <h3>实时预览（含斑马纹 + 选中 + Hover）</h3>
+  <div class="component-preview">
+    <!-- search bar -->
+    <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end;">
+      <div><label style="font-size:12px;color:var(--color-text-tertiary);display:block;">名称</label><input class="input-preview" style="width:160px;height:30px;" placeholder="请输入"></div>
+      <div><label style="font-size:12px;color:var(--color-text-tertiary);display:block;">状态</label><input class="input-preview" style="width:160px;height:30px;" placeholder="请选择"></div>
+      <button class="btn-preview btn-primary" style="height:30px;">查询</button>
+      <button class="btn-preview btn-default" style="height:30px;">重置</button>
+    </div>
+    <!-- toolbar -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="display:flex;gap:8px;">
+        <button class="btn-preview btn-primary" style="height:30px;">+ 新增</button>
+        <button class="btn-preview btn-danger" style="height:30px;">批量删除</button>
+        <button class="btn-preview btn-default" style="height:30px;">导出</button>
+      </div>
+      <span style="font-size:12px;color:var(--color-text-tertiary);">⚙ 列设置</span>
+    </div>
+    <!-- table -->
+    <div class="table-preview-wrap">
+      <table>
+        <thead>
+          <tr><th style="width:48px;"><input type="checkbox"></th><th>序号</th><th>名称</th><th style="min-width:80px;">状态</th><th>创建时间</th><th>负责人</th><th style="min-width:120px;">操作</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><input type="checkbox"></td><td>1</td><td>数据建模_销售主题</td><td><span class="status-dot running"></span>运行中</td><td>2024-01-15 14:30</td><td>张三</td><td><span class="action-link">编辑</span><span class="action-link danger">删除</span></td></tr>
+          <tr class="selected"><td><input type="checkbox" checked></td><td>2</td><td>数据建模_用户画像 <span style="font-size:10px;color:var(--color-primary-bg);background:var(--color-primary);padding:1px 4px;border-radius:2px;margin-left:4px;">选中</span></td><td><span class="status-dot running"></span>运行中</td><td>2024-01-14 10:20</td><td>李四</td><td><span class="action-link">编辑</span><span class="action-link danger">删除</span></td></tr>
+          <tr><td><input type="checkbox"></td><td>3</td><td>数据建模_财务分析</td><td><span class="status-dot stopped"></span>已停止</td><td>2024-01-13 09:00</td><td>王五</td><td><span class="action-link">编辑</span><span class="action-link danger">删除</span></td></tr>
+          <tr><td><input type="checkbox"></td><td>4</td><td>数据建模_库存管理</td><td><span class="status-dot running"></span>运行中</td><td>2024-01-12 16:45</td><td>赵六</td><td><span class="action-link">编辑</span><span class="action-link danger">删除</span></td></tr>
+          <tr><td><input type="checkbox"></td><td>5</td><td>数据建模_订单监控</td><td><span class="status-dot stopped"></span>已停止</td><td>2024-01-11 11:30</td><td>孙七</td><td><span class="action-link">编辑</span><span class="action-link danger">删除</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- pagination -->
+    <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--color-text-secondary);">
+      <span>共 100 条</span>
+      <span>10条/页</span>
+      <span style="cursor:pointer;padding:2px 8px;border:1px solid var(--color-border-base);border-radius:2px;">‹</span>
+      <span style="padding:2px 8px;background:var(--color-primary);color:#fff;border-radius:2px;">1</span>
+      <span style="cursor:pointer;padding:2px 8px;">2</span>
+      <span style="cursor:pointer;padding:2px 8px;">3</span>
+      <span style="cursor:pointer;padding:2px 8px;border:1px solid var(--color-border-base);border-radius:2px;">›</span>
+    </div>
+  </div>
+
+  <h3>状态矩阵</h3>
+  <table class="state-table">
+    <thead><tr><th>状态</th><th>背景色</th><th>文字色</th><th>边框</th></tr></thead>
+    <tbody>
+      <tr><td><span class="state-name state-default">Default</span></td><td class="token-ref">--color-bg-container</td><td class="token-ref">--color-text-primary</td><td class="token-ref">--color-border-split</td></tr>
+      <tr><td><span class="state-name state-hover">Hover</span></td><td>#F5F5F5 (Light) / #262626 (Dark)</td><td>同 Default</td><td>同 Default</td></tr>
+      <tr><td><span class="state-name" style="background:var(--color-primary-bg);color:var(--color-primary);">Selected</span></td><td class="token-ref">--color-primary-bg</td><td>同 Default</td><td>同 Default</td></tr>
+      <tr><td><span class="state-name state-disabled">Disabled</span></td><td>同 Default</td><td class="token-ref">--color-text-disabled</td><td>同 Default</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========== COMPONENT: BUTTON ========== -->
+<section id="comp-button">
+  <h2><span class="section-num">7</span> 组件 — Button 按钮</h2>
+
+  <h3>类型 & 状态实时预览</h3>
+  <div class="component-preview">
+    <p style="font-weight:var(--font-weight-medium);margin-bottom:8px;">Primary（主按钮）</p>
+    <div class="btn-row">
+      <span class="btn-preview btn-primary">Default</span>
+      <span class="btn-preview btn-primary" style="opacity:0.85;">Hover</span>
+      <span class="btn-preview btn-primary" style="background:var(--color-primary-active);">Active</span>
+      <span class="btn-preview btn-primary btn-disabled">Disabled</span>
+    </div>
+    <p style="font-weight:var(--font-weight-medium);margin:16px 0 8px;">Default（默认按钮）</p>
+    <div class="btn-row">
+      <span class="btn-preview btn-default">Default</span>
+      <span class="btn-preview btn-default" style="color:var(--color-primary);border-color:var(--color-primary);">Hover</span>
+      <span class="btn-preview btn-default" style="color:var(--color-primary-active);border-color:var(--color-primary-active);">Active</span>
+      <span class="btn-preview btn-default btn-disabled">Disabled</span>
+    </div>
+    <p style="font-weight:var(--font-weight-medium);margin:16px 0 8px;">Danger / Text</p>
+    <div class="btn-row">
+      <span class="btn-preview btn-danger">删除</span>
+      <span class="btn-preview btn-danger" style="background:var(--color-danger-bg);">Hover</span>
+      <span class="btn-preview btn-text">文字按钮</span>
+      <span class="btn-preview btn-text" style="background:var(--color-primary-bg);">Hover</span>
+    </div>
+    <p style="font-weight:var(--font-weight-medium);margin:16px 0 8px;">尺寸变体</p>
+    <div class="btn-row" style="align-items:center;">
+      <span class="btn-preview btn-primary" style="height:24px;font-size:11px;padding:0 8px;">Small 24px</span>
+      <span class="btn-preview btn-primary" style="height:28px;font-size:12px;padding:0 12px;">Small 28px</span>
+      <span class="btn-preview btn-primary" style="height:32px;">Base 32px</span>
+      <span class="btn-preview btn-primary" style="height:40px;font-size:16px;padding:0 20px;">Large 40px</span>
+    </div>
+  </div>
+</section>
+
+<!-- ========== COMPONENT: INPUT ========== -->
+<section id="comp-input">
+  <h2><span class="section-num">8</span> 组件 — Input 输入框</h2>
+
+  <div class="component-preview">
+    <p style="font-weight:var(--font-weight-medium);margin-bottom:8px;">Default / Hover / Focus / Error</p>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+      <div>
+        <p style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px;">Default</p>
+        <input class="input-preview" placeholder="请输入内容">
+      </div>
+      <div>
+        <p style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px;">Hover / Focus</p>
+        <input class="input-preview" placeholder="鼠标悬浮或聚焦" autofocus>
+      </div>
+      <div>
+        <p style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px;">Disabled</p>
+        <input class="input-preview" placeholder="禁用状态" disabled>
+      </div>
+      <div>
+        <p style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px;">Error</p>
+        <input class="input-preview input-error" value="错误内容">
+        <p style="font-size:11px;color:var(--color-danger);margin-top:2px;">请输入正确的内容</p>
+      </div>
+    </div>
+    <p style="font-weight:var(--font-weight-medium);margin:20px 0 8px;">尺寸变体</p>
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+      <input class="input-preview" style="height:24px;width:140px;font-size:11px;" placeholder="XS 24px">
+      <input class="input-preview" style="height:28px;width:160px;font-size:12px;" placeholder="SM 28px">
+      <input class="input-preview" style="width:180px;" placeholder="BASE 32px">
+      <input class="input-preview" style="height:40px;width:200px;font-size:16px;" placeholder="LG 40px">
+    </div>
+  </div>
+</section>
+
+<!-- ========== COMPONENT: MODAL ========== -->
+<section id="comp-modal">
+  <h2><span class="section-num">9</span> 组件 — Modal 弹窗</h2>
+
+  <div class="component-preview">
+    <div class="modal-preview-mask">
+      <div class="modal-preview-box">
+        <div class="modal-header">
+          <span>新建数据模型</span>
+          <span style="cursor:pointer;color:var(--color-text-tertiary);">✕</span>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:13px;margin-bottom:8px;"><label style="display:block;margin-bottom:4px;">模型名称</label><input class="input-preview" style="width:100%;" placeholder="请输入模型名称"></p>
+          <p style="font-size:13px;"><label style="display:block;margin-bottom:4px;">描述</label><input class="input-preview" style="width:100%;" placeholder="请输入描述"></p>
+        </div>
+        <div class="modal-footer">
+          <span class="btn-preview btn-default">取消</span>
+          <span class="btn-preview btn-primary">确定</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Modal 状态矩阵</h3>
+  <table class="state-table">
+    <thead><tr><th>属性</th><th>Small</th><th>Default</th><th>Large</th></tr></thead>
+    <tbody>
+      <tr><td>宽度</td><td>416px</td><td>520px</td><td>720px</td></tr>
+      <tr><td>遮罩透明度</td><td colspan="3" class="token-ref">--color-bg-mask: rgba(0,0,0,0.45)</td></tr>
+      <tr><td>阴影</td><td colspan="3" class="token-ref">--shadow-lg</td></tr>
+      <tr><td>圆角</td><td colspan="3" class="token-ref">--radius-lg (8px)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========== GLOBAL: MOTION ========== -->
+<section id="global-motion">
+  <h2><span class="section-num">10</span> 全局规范 — 交互动效</h2>
+
+  <h3>缓动函数</h3>
+  <table class="token-table">
+    <thead><tr><th>Token</th><th>值</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td class="token-name">--ease-out</td><td>cubic-bezier(0.215, 0.61, 0.355, 1)</td><td>元素出现、展开（先快后慢）</td></tr>
+      <tr><td class="token-name">--ease-in</td><td>cubic-bezier(0.55, 0.055, 0.675, 0.19)</td><td>元素消失、收起</td></tr>
+      <tr><td class="token-name">--ease-in-out</td><td>cubic-bezier(0.645, 0.045, 0.355, 1)</td><td>位置移动、样式过渡</td></tr>
+    </tbody>
+  </table>
+
+  <h3>动画时长</h3>
+  <table class="token-table">
+    <thead><tr><th>Token</th><th>值</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td class="token-name">--duration-fast</td><td>100ms</td><td>微交互（hover 变色、checkbox 切换）</td></tr>
+      <tr><td class="token-name">--duration-base</td><td>200ms</td><td>标准过渡（展开/收起、fade）</td></tr>
+      <tr><td class="token-name">--duration-slow</td><td>300ms</td><td>大幅度动画（弹窗、抽屉、页面切换）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>组件动画速查</h3>
+  <table class="token-table">
+    <thead><tr><th>交互</th><th>时长</th><th>缓动</th></tr></thead>
+    <tbody>
+      <tr><td>按钮 hover</td><td class="token-name">--duration-fast</td><td>ease</td></tr>
+      <tr><td>输入框 focus</td><td class="token-name">--duration-base</td><td class="token-name">--ease-out</td></tr>
+      <tr><td>下拉菜单展开</td><td class="token-name">--duration-base</td><td class="token-name">--ease-out</td></tr>
+      <tr><td>弹窗打开</td><td class="token-name">--duration-slow</td><td>ease（缩放 0.95→1）</td></tr>
+      <tr><td>抽屉打开</td><td class="token-name">--duration-slow</td><td class="token-name">--ease-out</td></tr>
+      <tr><td>气泡/Tooltip</td><td>150ms</td><td class="token-name">--ease-out</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========== GLOBAL: FEEDBACK ========== -->
+<section id="global-feedback">
+  <h2><span class="section-num">11</span> 全局规范 — 反馈系统</h2>
+
+  <h3>Loading 态</h3>
+  <table class="token-table">
+    <thead><tr><th>场景</th><th>加载方式</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>页面首次加载</td><td>骨架屏 (Skeleton)</td><td>模拟页面结构，避免白屏</td></tr>
+      <tr><td>数据刷新</td><td>Spin + 半透明遮罩</td><td>保留表头可见</td></tr>
+      <tr><td>按钮操作中</td><td>按钮内 Loading 图标</td><td>图标替换原有 icon，按钮禁用</td></tr>
+      <tr><td>后台静默刷新</td><td>顶部 2px 进度条</td><td>主色，细进度条</td></tr>
+    </tbody>
+  </table>
+
+  <h3>空状态</h3>
+  <table class="token-table">
+    <thead><tr><th>场景</th><th>主文案</th><th>操作</th></tr></thead>
+    <tbody>
+      <tr><td>列表无数据</td><td>暂无数据</td><td>—</td></tr>
+      <tr><td>搜索无结果</td><td>未找到符合条件的结果</td><td>「清除条件」链接</td></tr>
+      <tr><td>接口报错</td><td>数据加载失败</td><td>「重新加载」按钮</td></tr>
+      <tr><td>无权限</td><td>暂无访问权限</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <h3>消息提示</h3>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin:var(--spacing-lg) 0;">
+    <span class="badge" style="background:var(--color-success-bg);color:var(--color-success);padding:6px 12px;font-size:13px;border-radius:var(--radius-base);">✓ 操作成功</span>
+    <span class="badge" style="background:var(--color-danger-bg);color:var(--color-danger);padding:6px 12px;font-size:13px;border-radius:var(--radius-base);">✕ 操作失败</span>
+    <span class="badge" style="background:var(--color-warning-bg);color:#D48806;padding:6px 12px;font-size:13px;border-radius:var(--radius-base);">⚠ 警告提示</span>
+    <span class="badge" style="background:var(--color-info-bg);color:var(--color-info);padding:6px 12px;font-size:13px;border-radius:var(--radius-base);">ℹ 信息提示</span>
+  </div>
+</section>
+
+<!-- ========== GLOBAL: RESPONSIVE ========== -->
+<section id="global-responsive">
+  <h2><span class="section-num">12</span> 全局规范 — 响应式断点</h2>
+
+  <table class="token-table">
+    <thead><tr><th>断点</th><th>宽度</th><th>列数</th><th>设备</th></tr></thead>
+    <tbody>
+      <tr><td><strong>xs</strong></td><td>&lt; 576px</td><td>1 列</td><td>手机</td></tr>
+      <tr><td><strong>sm</strong></td><td>≥ 576px</td><td>2 列</td><td>大屏手机</td></tr>
+      <tr><td><strong>md</strong></td><td>≥ 768px</td><td>3 列</td><td>平板横屏</td></tr>
+      <tr><td><strong>lg</strong></td><td>≥ 992px</td><td>3~4 列</td><td>笔记本</td></tr>
+      <tr><td><strong>xl</strong></td><td>≥ 1200px</td><td>4 列</td><td>桌面</td></tr>
+      <tr><td><strong>xxl</strong></td><td>≥ 1600px</td><td>4~6 列</td><td>大屏</td></tr>
+    </tbody>
+  </table>
+
+  <h3>组件响应式行为</h3>
+  <table class="token-table">
+    <thead><tr><th>组件</th><th>&lt; 768px</th><th>≥ 768px</th></tr></thead>
+    <tbody>
+      <tr><td>Table</td><td>转为卡片列表</td><td>标准表格</td></tr>
+      <tr><td>Form</td><td>表单项全宽，label 在顶部</td><td>按栅格排列，label 在左侧</td></tr>
+      <tr><td>Modal</td><td>全屏弹窗</td><td>居中弹窗</td></tr>
+      <tr><td>Breadcrumb</td><td>隐藏，显示返回上级按钮</td><td>完整显示</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ========== DELIVERY CHECKLIST ========== -->
+<section id="delivery-checklist">
+  <h2><span class="section-num">13</span> UI 设计师交付自检清单</h2>
+
+  <div class="callout callout-warning">
+    <span class="callout-icon">⚠️</span>
+    <div>UI 设计师在每个组件交付前，请逐项打勾自查。未通过自检的组件不要提交给前端评审。</div>
+  </div>
+
+  <h3>通用检查项</h3>
+  <ul class="checklist">
+    <li class="done">所有颜色值引用 Token（无裸色值如 #2575F5）</li>
+    <li class="done">所有字号引用 Token 体系（无裸字号）</li>
+    <li class="done">所有间距是 4px 的倍数，引用 Token</li>
+    <li>Default / Hover / Active / Focus / Disabled 五个状态已全部给出</li>
+    <li>Loading 态已覆盖（如果组件有加载场景）</li>
+    <li>Error 态已覆盖（如果组件有校验场景）</li>
+    <li>Empty 态已覆盖（如果组件展示数据）</li>
+    <li>Light（亮色）和 Dark（暗色）双主题已标注</li>
+    <li>暗色主题对比度满足 WCAG AA（4.5:1 正文 / 3:1 大文本）</li>
+    <li>内容为空 / 超长 / 极端情况已有处理方案</li>
+    <li>与相邻组件的间距关系已标注</li>
+    <li>组件在响应式断点下的行为已标注</li>
+  </ul>
+
+  <div class="callout callout-info" style="margin-top:var(--spacing-xl);">
+    <span class="callout-icon">📁</span>
+    <div><strong>交付物文件清单</strong><br>
+    每个组件需交付：Figma/MasterGo 页面（结构拆解 + 尺寸变体 + 状态矩阵 Light + 状态矩阵 Dark + 典型场景 + 边界情况）+ 1 份 Markdown 规范文档</div>
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<div class="page-footer">
+  <p>DataCenter Platform UI Design Specification · v1.0 · 2026-07-08</p>
+  <p style="margin-top:4px;">Design Tokens 实时生效 — 点击左下角开关切换 Light / Dark 主题查看完整效果</p>
+  <p style="margin-top:4px;">相关文档：<a href="./01-design-tokens.md" style="color:var(--color-primary);">Design Tokens</a> · <a href="./02-component-spec-template.md" style="color:var(--color-primary);">组件规范模板</a> · <a href="./03-component-example-breadcrumb.md" style="color:var(--color-primary);">Breadcrumb 示例</a> · <a href="./04-component-example-table.md" style="color:var(--color-primary);">Table 示例</a></p>
+</div>
+
+</div><!-- .content -->
+</div><!-- .main -->
+
+<script>
+// ===== Theme Toggle =====
+function toggleTheme() {
+  const html = document.documentElement;
+  const label = document.getElementById('theme-label');
+  if (html.getAttribute('data-theme') === 'dark') {
+    html.setAttribute('data-theme', 'light');
+    label.textContent = '暗色模式';
+  } else {
+    html.setAttribute('data-theme', 'dark');
+    label.textContent = '亮色模式';
+  }
+}
+
+// ===== Tab Switching =====
+document.querySelectorAll('.tabs').forEach(tabGroup => {
+  tabGroup.addEventListener('click', (e) => {
+    const tab = e.target.closest('.tab-item');
+    if (!tab) return;
+    const tabId = tab.dataset.tab;
+    const container = tab.closest('section') || tab.closest('.content');
+    // deactivate all tabs in this group
+    tabGroup.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    // hide all tab contents in container
+    container.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    // show target
+    const target = document.getElementById(tabId);
+    if (target) target.classList.add('active');
+  });
+});
+
+// ===== Sidebar Active State =====
+const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+const sections = document.querySelectorAll('section[id]');
+
+function updateActiveLink() {
+  let current = '';
+  sections.forEach(section => {
+    const top = section.getBoundingClientRect().top;
+    if (top < 120) current = section.id;
+  });
+  sidebarLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+  });
+}
+window.addEventListener('scroll', updateActiveLink);
+
+// ===== Color Swatch Rendering =====
+const brandColors = [
+  { name: 'primary', val: '#2575F5', darkVal: '#4D94F5', css: '--color-primary' },
+  { name: 'primary-hover', val: '#3D85F7', darkVal: '#6BA6F7', css: '--color-primary-hover' },
+  { name: 'primary-active', val: '#1A5FCF', darkVal: '#3D85F7', css: '--color-primary-active' },
+  { name: 'primary-bg', val: '#EBF2FE', darkVal: '#1A2840', css: '--color-primary-bg' },
+  { name: 'primary-disabled', val: '#A3C6FA', darkVal: '#3D5273', css: '--color-primary-disabled' },
+  { name: 'success', val: '#52C41A', darkVal: '#6CD932', css: '--color-success' },
+  { name: 'success-bg', val: '#F0FAE8', darkVal: '#1A3010', css: '--color-success-bg' },
+  { name: 'warning', val: '#FAAD14', darkVal: '#F0B832', css: '--color-warning' },
+  { name: 'warning-bg', val: '#FFF8E6', darkVal: '#302810', css: '--color-warning-bg' },
+  { name: 'danger', val: '#FF4D4F', darkVal: '#F26669', css: '--color-danger' },
+  { name: 'danger-bg', val: '#FFF0F0', darkVal: '#301010', css: '--color-danger-bg' },
+  { name: 'info', val: '#1890FF', darkVal: '#3DA0FF', css: '--color-info' },
+  { name: 'info-bg', val: '#EBF6FF', darkVal: '#102840', css: '--color-info-bg' },
+];
+
+const neutralColors = [
+  { name: 'text-primary', val: '#262626', darkVal: '#E8E8E8', css: '--color-text-primary' },
+  { name: 'text-secondary', val: '#595959', darkVal: '#A6A6A6', css: '--color-text-secondary' },
+  { name: 'text-tertiary', val: '#BFBFBF', darkVal: '#666666', css: '--color-text-tertiary' },
+  { name: 'text-disabled', val: '#D9D9D9', darkVal: '#4D4D4D', css: '--color-text-disabled' },
+  { name: 'bg-base', val: '#F5F5F5', darkVal: '#0D0D0D', css: '--color-bg-base' },
+  { name: 'bg-container', val: '#FFFFFF', darkVal: '#1A1A1A', css: '--color-bg-container' },
+  { name: 'bg-elevated', val: '#FFFFFF', darkVal: '#262626', css: '--color-bg-elevated' },
+  { name: 'border-base', val: '#D9D9D9', darkVal: '#404040', css: '--color-border-base' },
+  { name: 'border-split', val: '#F0F0F0', darkVal: '#2E2E2E', css: '--color-border-split' },
+];
+
+const chartColors = [
+  { name: 'chart-1', val: '#2575F5', darkVal: '#2575F5', css: '--color-chart-1' },
+  { name: 'chart-2', val: '#52C41A', darkVal: '#52C41A', css: '--color-chart-2' },
+  { name: 'chart-3', val: '#FAAD14', darkVal: '#FAAD14', css: '--color-chart-3' },
+  { name: 'chart-4', val: '#FF4D4F', darkVal: '#FF4D4F', css: '--color-chart-4' },
+  { name: 'chart-5', val: '#722ED1', darkVal: '#722ED1', css: '--color-chart-5' },
+  { name: 'chart-6', val: '#13C2C2', darkVal: '#13C2C2', css: '--color-chart-6' },
+  { name: 'chart-7', val: '#EB2F96', darkVal: '#EB2F96', css: '--color-chart-7' },
+  { name: 'chart-8', val: '#FA8C16', darkVal: '#FA8C16', css: '--color-chart-8' },
+];
+
+function renderSwatch(containerId, colors) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = colors.map(c => `
+    <div class="color-swatch">
+      <div class="preview" style="background:${c.val};">
+        <span>${c.darkVal}</span>
+      </div>
+      <div class="info">
+        <div class="name">${c.css}</div>
+        <div class="val">Light: ${c.val}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+renderSwatch('brand-colors' in document.body ? 'brand-colors' : null, brandColors);
+// Target the color-grid divs directly
+document.querySelectorAll('#tokens-colors .color-grid')[0].innerHTML = brandColors.map(c => `
+  <div class="color-swatch">
+    <div class="preview" style="background:${c.val};"><span>${c.darkVal}</span></div>
+    <div class="info"><div class="name">${c.css}</div><div class="val">Light: ${c.val}</div></div>
+  </div>
+`).join('');
+
+document.querySelectorAll('#tokens-colors .color-grid')[1].innerHTML = neutralColors.map(c => `
+  <div class="color-swatch">
+    <div class="preview" style="background:${c.val};"><span>${c.darkVal}</span></div>
+    <div class="info"><div class="name">${c.css}</div><div class="val">Light: ${c.val}</div></div>
+  </div>
+`).join('');
+
+document.querySelectorAll('#tokens-colors .color-grid')[2].innerHTML = chartColors.map(c => `
+  <div class="color-swatch">
+    <div class="preview" style="background:${c.val};"></div>
+    <div class="info"><div class="name">${c.css}</div><div class="val">${c.val}</div></div>
+  </div>
+`).join('');
+
+// ===== Token Table =====
+const allTokens = [
+  { css:'--color-primary', token:'color.primary', light:'#2575F5', dark:'#4D94F5', use:'主色' },
+  { css:'--color-primary-hover', token:'color.primaryHover', light:'#3D85F7', dark:'#6BA6F7', use:'主色悬浮' },
+  { css:'--color-primary-active', token:'color.primaryActive', light:'#1A5FCF', dark:'#3D85F7', use:'主色点击' },
+  { css:'--color-primary-bg', token:'color.primaryBg', light:'#EBF2FE', dark:'#1A2840', use:'主色浅底' },
+  { css:'--color-success', token:'color.success', light:'#52C41A', dark:'#6CD932', use:'成功' },
+  { css:'--color-warning', token:'color.warning', light:'#FAAD14', dark:'#F0B832', use:'警告' },
+  { css:'--color-danger', token:'color.danger', light:'#FF4D4F', dark:'#F26669', use:'危险/错误' },
+  { css:'--color-text-primary', token:'color.textPrimary', light:'#262626', dark:'#E8E8E8', use:'主要文字' },
+  { css:'--color-text-secondary', token:'color.textSecondary', light:'#595959', dark:'#A6A6A6', use:'次要文字' },
+  { css:'--color-text-tertiary', token:'color.textTertiary', light:'#BFBFBF', dark:'#666666', use:'辅助文字' },
+  { css:'--color-bg-base', token:'color.bgBase', light:'#F5F5F5', dark:'#0D0D0D', use:'页面底色' },
+  { css:'--color-bg-container', token:'color.bgContainer', light:'#FFFFFF', dark:'#1A1A1A', use:'容器背景' },
+  { css:'--color-border-base', token:'color.borderBase', light:'#D9D9D9', dark:'#404040', use:'默认边框' },
+  { css:'--color-border-split', token:'color.borderSplit', light:'#F0F0F0', dark:'#2E2E2E', use:'分割线' },
+  { css:'--shadow-sm', token:'shadow.sm', light:'0 1px 2px rgba(0,0,0,0.03)', dark:'0 1px 2px rgba(0,0,0,0.16)', use:'卡片' },
+  { css:'--shadow-base', token:'shadow.base', light:'0 3px 6px rgba(0,0,0,0.12)', dark:'0 3px 6px rgba(0,0,0,0.24)', use:'下拉面板' },
+  { css:'--shadow-lg', token:'shadow.lg', light:'0 6px 16px rgba(0,0,0,0.12)', dark:'0 6px 16px rgba(0,0,0,0.24)', use:'弹窗' },
+  { css:'--font-size-xs', token:'fontSize.xs', light:'12px', dark:'12px', use:'标签' },
+  { css:'--font-size-sm', token:'fontSize.sm', light:'13px', dark:'13px', use:'表格' },
+  { css:'--font-size-base', token:'fontSize.base', light:'14px', dark:'14px', use:'正文' },
+  { css:'--font-size-lg', token:'fontSize.lg', light:'16px', dark:'16px', use:'小标题' },
+  { css:'--spacing-xs', token:'spacing.xs', light:'4px', dark:'4px', use:'极小间距' },
+  { css:'--spacing-sm', token:'spacing.sm', light:'8px', dark:'8px', use:'组件内部' },
+  { css:'--spacing-md', token:'spacing.md', light:'12px', dark:'12px', use:'按钮组' },
+  { css:'--spacing-lg', token:'spacing.lg', light:'16px', dark:'16px', use:'卡片内边距' },
+  { css:'--spacing-xl', token:'spacing.xl', light:'24px', dark:'24px', use:'栅格间距' },
+  { css:'--radius-sm', token:'radius.sm', light:'2px', dark:'2px', use:'小型元素' },
+  { css:'--radius-base', token:'radius.base', light:'4px', dark:'4px', use:'按钮/输入框' },
+  { css:'--radius-lg', token:'radius.lg', light:'8px', dark:'8px', use:'卡片/弹窗' },
+  { css:'--duration-fast', token:'duration.fast', light:'100ms', dark:'100ms', use:'微交互' },
+  { css:'--duration-base', token:'duration.base', light:'200ms', dark:'200ms', use:'标准过渡' },
+  { css:'--duration-slow', token:'duration.slow', light:'300ms', dark:'300ms', use:'大幅度动画' },
+];
+
+const tbody = document.getElementById('token-table-body');
+if (tbody) {
+  tbody.innerHTML = allTokens.map(t => `
+    <tr>
+      <td class="token-name">${t.css}</td>
+      <td>${t.token}</td>
+      <td class="token-val">${t.light}</td>
+      <td class="token-val">${t.dark}</td>
+      <td>${t.use}</td>
+    </tr>
+  `).join('');
+}
+
+// ===== Spacing Scale =====
+const spacings = [
+  { css:'--spacing-xxs', val:'2px', px:2 },
+  { css:'--spacing-xs', val:'4px', px:4 },
+  { css:'--spacing-sm', val:'8px', px:8 },
+  { css:'--spacing-md', val:'12px', px:12 },
+  { css:'--spacing-lg', val:'16px', px:16 },
+  { css:'--spacing-xl', val:'24px', px:24 },
+  { css:'--spacing-xxl', val:'32px', px:32 },
+  { css:'--spacing-xxxl', val:'48px', px:48 },
+];
+const spacingDiv = document.getElementById('spacing-scale');
+if (spacingDiv) {
+  spacingDiv.innerHTML = spacings.map(s => `
+    <div class="spacing-row">
+      <span class="spacing-label">${s.css}<br><small>${s.val}</small></span>
+      <div class="spacing-bar" style="width:${s.px * 5}px;"></div>
+    </div>
+  `).join('');
+}
+
+// ===== Radius Scale =====
+const radiuses = [
+  { css:'--radius-none', val:'0', px:0 },
+  { css:'--radius-sm', val:'2px', px:2 },
+  { css:'--radius-base', val:'4px', px:4 },
+  { css:'--radius-lg', val:'8px', px:8 },
+  { css:'--radius-round', val:'9999px', px:48 },
+];
+const radiusDiv = document.getElementById('radius-scale');
+if (radiusDiv) {
+  radiusDiv.innerHTML = radiuses.map(r => `
+    <div class="radius-item">
+      <div class="radius-box" style="border-radius:${r.val};"></div>
+      <div class="radius-label">${r.css}</div>
+      <div class="radius-val">${r.val}</div>
+    </div>
+  `).join('');
+}
+
+// ===== Shadow Previews =====
+const shadowSm = document.getElementById('shadow-sm-preview');
+const shadowBase = document.getElementById('shadow-base-preview');
+const shadowLg = document.getElementById('shadow-lg-preview');
+if (shadowSm) shadowSm.style.boxShadow = 'var(--shadow-sm)';
+if (shadowBase) shadowBase.style.boxShadow = 'var(--shadow-base)';
+if (shadowLg) shadowLg.style.boxShadow = 'var(--shadow-lg)';
+</script>
+
+</body>
+</html>

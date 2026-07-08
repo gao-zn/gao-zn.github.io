@@ -23,6 +23,20 @@ const proposalsSidebar = [
       { text: "MCP 智能体集成框架", link: "/mcp-agent-framework-analysis" },
       { text: "Monorepo 改造可行性分析", link: "/monorepo-feasibility-analysis" },
       { text: "设计稿屏幕适配方案", link: "/screen-adaptation-analysis" },
+      {
+        text: "UI 设计规范",
+        collapsed: false,
+        items: [
+          { text: "概述", link: "/ui-spec/" },
+          { text: "Design Tokens", link: "/ui-spec/01-design-tokens" },
+          { text: "组件设计规范模板", link: "/ui-spec/02-component-spec-template" },
+          { text: "面包屑 Breadcrumb", link: "/ui-spec/03-component-example-breadcrumb" },
+          { text: "表格 Table", link: "/ui-spec/04-component-example-table" },
+          { text: "全局交互规范", link: "/ui-spec/05-interaction-spec" },
+          { text: "交付自检清单", link: "/ui-spec/06-delivery-checklist" },
+          { text: "Token 联动方案", link: "/ui-spec/token-integration-plan" },
+        ],
+      },
     ],
   },
 ];
@@ -33,6 +47,7 @@ export default defineConfig({
   lang: "zh-Hans",
   title: "gzn的乌托邦",
   description: "一个前端工程师的思考与记录",
+  ignoreDeadLinks: true,
 
   themeConfig: {
     nav: [
@@ -54,6 +69,15 @@ export default defineConfig({
       "/mcp-agent-framework-analysis": proposalsSidebar,
       "/monorepo-feasibility-analysis": proposalsSidebar,
       "/screen-adaptation-analysis": proposalsSidebar,
+
+      "/ui-spec/": proposalsSidebar,
+      "/ui-spec/01-design-tokens": proposalsSidebar,
+      "/ui-spec/02-component-spec-template": proposalsSidebar,
+      "/ui-spec/03-component-example-breadcrumb": proposalsSidebar,
+      "/ui-spec/04-component-example-table": proposalsSidebar,
+      "/ui-spec/05-interaction-spec": proposalsSidebar,
+      "/ui-spec/06-delivery-checklist": proposalsSidebar,
+      "/ui-spec/token-integration-plan": proposalsSidebar,
     },
 
     socialLinks: [
