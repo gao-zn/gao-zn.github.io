@@ -29,6 +29,7 @@ const proposalsSidebar = [
         items: [
           { text: "概述", link: "/ui-spec/" },
           { text: "Design Tokens", link: "/ui-spec/01-design-tokens" },
+          { text: "Token JSON 工作流", link: "/ui-spec/token-json-workflow" },
           { text: "组件设计规范模板", link: "/ui-spec/02-component-spec-template" },
           { text: "面包屑 Breadcrumb", link: "/ui-spec/03-component-example-breadcrumb" },
           { text: "表格 Table", link: "/ui-spec/04-component-example-table" },
@@ -78,6 +79,7 @@ export default defineConfig({
       "/ui-spec/05-interaction-spec": proposalsSidebar,
       "/ui-spec/06-delivery-checklist": proposalsSidebar,
       "/ui-spec/token-integration-plan": proposalsSidebar,
+      "/ui-spec/token-json-workflow": proposalsSidebar,
     },
 
     socialLinks: [
