@@ -3,7 +3,7 @@
 > **面向对象**: UI 设计师 → 前端开发  
 > **用途**: 规范 UI 设计师交付给前端开发的设计产出物，确保组件库开发有据可依  
 > **参考标准**: 飞书开放平台设计规范（[Breadcrumb 示例](https://open.feishu.cn/document/design-specification/component---navigation/breadcrumb)）  
-> 📄 **[在线预览此设计规范](preview.html)** — 带视觉样式的独立预览页面
+> 📄 <a href="/ui-spec/preview.html" target="_blank">在线预览此设计规范</a> — 带视觉样式的独立预览页面（新窗口打开）
 
 ---
 
