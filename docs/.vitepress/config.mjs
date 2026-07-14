@@ -36,6 +36,7 @@ const proposalsSidebar = [
           { text: "全局交互规范", link: "/ui-spec/05-interaction-spec" },
           { text: "交付自检清单", link: "/ui-spec/06-delivery-checklist" },
           { text: "Token 联动方案", link: "/ui-spec/token-integration-plan" },
+          { text: "设计规范预览", link: "/ui-spec/design-specification.html", target: "_blank" },
         ],
       },
     ],

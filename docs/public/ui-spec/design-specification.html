@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据中台 — 设计规范 v2.0</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f5f7fb;
+    --text: rgba(0,0,0,0.85);
+    --text-secondary: rgba(0,0,0,0.65);
+    --text-tertiary: rgba(68,81,100,0.65);
+    --border: #d9d9d9;
+    --border-light: #dfecff;
+    --primary: #0d6ef0;
+    --primary-hover: #4096ff;
+    --primary-active: #0958d9;
+    --primary-light: #dfecff;
+    --primary-light-hover: #c8ddfa;
+    --success: #52c41a;
+    --warning: #faad14;
+    --error: #f5222d;
+    --info: #1890ff;
+    --radius: 3px;
+    --radius-md: 4px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.15);
+    --shadow-content: 0px 0px 6px rgba(57,128,240,0.3);
+    --sidebar-width: 280px;
+    --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    --font-sans: 'FZLanTingHeiS-M-GB', 'FZLanTingHeiS-DB1-GB', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 15px; }
+  body { font-family: var(--font-sans); color: var(--text); line-height: 1.7; display: flex; min-height: 100vh; background: #eff0f2; }
+
+  /* Sidebar */
+  nav {
+    position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-width);
+    background: #f0f5ff; color: #496287; overflow: hidden; z-index: 10;
+    font-size: 0.9rem; display: flex; flex-direction: column;
+    border-right: 1px solid var(--border-light);
+  }
+  /* Fixed header area */
+  nav .nav-header {
+    position: sticky; top: 0; z-index: 2;
+    background: linear-gradient(180deg, #f0f5ff 80%, rgba(240,245,255,0));
+    padding: 24px 24px 12px;
+  }
+  nav .logo { padding-bottom: 16px; border-bottom: 1px solid var(--border-light); margin-bottom: 4px; }
+  nav .logo h1 { font-size: 1.15rem; font-weight: 700; color: #001f51; letter-spacing: 0.5px; }
+  nav .logo span { font-size: 0.75rem; color: rgba(0,31,81,0.4); display: block; margin-top: 4px; }
+  /* Scrollable nav links */
+  nav .nav-links { flex: 1; overflow-y: auto; padding: 4px 0 24px; }
+  nav .nav-links::-webkit-scrollbar { width: 4px; }
+  nav .nav-links::-webkit-scrollbar-thumb { background: #c8ddfa; border-radius: 30px; }
+  nav a { display: block; padding: 5px 24px; color: #496287; text-decoration: none; transition: all 0.15s; border-left: 3px solid transparent; }
+  nav a:hover, nav a.active { color: #2575f5; background: rgba(37,117,245,0.08); border-left-color: #2575f5; }
+  nav .nav-section { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(0,31,81,0.35); padding: 14px 24px 4px; font-weight: 600; }
+  nav .nav-sub { padding-left: 36px; font-size: 0.83rem; }
+
+  /* Main — fluid width with comfortable reading measure */
+  main { margin-left: var(--sidebar-width); flex: 1; padding: 40px 48px 80px; background: #fff; box-shadow: var(--shadow-content); min-height: 100vh; }
+  main h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; letter-spacing: 0; color: var(--text); }
+  main h2 { font-size: 1.55rem; font-weight: 600; margin: 48px 0 16px; padding-top: 24px; border-top: 1px solid var(--border-light); color: #001f51; }
+  main h3 { font-size: 1.2rem; font-weight: 600; margin: 28px 0 10px; color: rgba(0,31,81,0.85); }
+  main h4 { font-size: 1rem; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+  main p { margin-bottom: 12px; color: var(--text-secondary); }
+  main a { color: var(--primary); }
+  main a:hover { color: var(--primary-hover); }
+
+  /* Tables — matching system table style */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 0.9rem; border: 1px solid var(--border-light); border-radius: var(--radius); }
+  th, td { padding: 10px 14px; text-align: left; border: 1px solid var(--border-light); }
+  th { background: var(--primary-light); font-weight: 400; font-size: 0.85rem; color: var(--text-tertiary); letter-spacing: 0; text-transform: none; }
+  tr:hover td { background: rgba(163,199,255,0.15); }
+
+  /* Code */
+  code { font-family: var(--font-mono); font-size: 0.85em; background: rgba(13,110,240,0.06); padding: 2px 6px; border-radius: var(--radius); color: #0958d9; }
+  pre { background: #001f51; color: #e2e8f0; padding: 18px 22px; border-radius: var(--radius); overflow-x: auto; margin: 12px 0 20px; font-size: 0.84rem; line-height: 1.65; box-shadow: var(--shadow); }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+  /* Color Swatches */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin: 12px 0 20px; }
+  .swatch { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .swatch-preview { height: 56px; }
+  .swatch-info { padding: 8px 10px; background: #fff; }
+  .swatch-info .name { font-size: 0.78rem; font-weight: 600; color: #1e293b; }
+  .swatch-info .value { font-size: 0.72rem; color: #64748b; font-family: var(--font-mono); }
+
+  /* Theme Comparison */
+  .theme-compare { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0 24px; }
+  .theme-card { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .theme-card-header { padding: 12px 14px; font-weight: 700; font-size: 0.9rem; color: #fff; }
+  .theme-card-body { padding: 10px 14px; font-size: 0.8rem; }
+  .theme-card-body .row { display: flex; justify-content: space-between; padding: 2px 0; }
+  .theme-card-body .row .label { color: #64748b; }
+
+  /* Callouts — matching system alert style */
+  .callout { padding: 14px 18px; border-radius: var(--radius); margin: 16px 0; font-size: 0.9rem; border: 1px solid; border-left-width: 4px; }
+  .callout-info { background: rgba(230,244,255,0.5); border-color: rgba(145,202,255,0.8); color: rgba(0,31,81,0.85); }
+  .callout-warning { background: rgba(255,248,232,0.5); border-color: rgba(250,173,20,0.5); color: #92400e; }
+  .callout-success { background: rgba(237,247,237,0.5); border-color: rgba(82,196,26,0.4); color: #166534; }
+  .callout-danger { background: rgba(254,242,242,0.5); border-color: rgba(245,34,45,0.4); color: #991b1b; }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: var(--radius); font-size: 0.72rem; font-weight: 500; }
+  .badge-new { background: rgba(82,196,26,0.15); color: #389e0d; }
+  .badge-deprecated { background: rgba(245,34,45,0.1); color: #cf1322; }
+  .badge-info { background: rgba(13,110,240,0.1); color: #0958d9; }
+  .badge-warning { background: rgba(250,173,20,0.15); color: #d48806; }
+
+  /* Token hierarchy diagram */
+  .token-tree { padding: 16px 20px; background: var(--primary-light); border-radius: var(--radius); margin: 12px 0; font-family: var(--font-mono); font-size: 0.85rem; line-height: 2; border: 1px solid var(--border-light); }
+  .token-tree .l1 { color: var(--primary); font-weight: 700; }
+  .token-tree .l2 { color: #001f51; margin-left: 20px; }
+  .token-tree .l3 { color: rgba(0,31,81,0.55); margin-left: 40px; font-size: 0.82rem; }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    nav { width: 240px; }
+    main { margin-left: 240px; padding: 32px; }
+    .theme-compare { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    nav { display: none; }
+    main { margin-left: 0; padding: 24px; }
+    .theme-compare { grid-template-columns: 1fr; }
+  }
+
+  .anchor { scroll-margin-top: 24px; }
+  hr { border: none; border-top: 1px solid var(--border-light); margin: 32px 0; }
+
+  /* Lists */
+  main ol, main ul { margin: 8px 0 16px 24px; color: var(--text-secondary); }
+  main ol li, main ul li { margin-bottom: 4px; }
+
+  /* Scrollbar — matching system scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; border-radius: 30px; }
+  ::-webkit-scrollbar-thumb { background: #a7cafd; border-radius: 30px; }
+  ::-webkit-scrollbar-thumb:hover { background: #a7cafd; }
+  ::-webkit-scrollbar-thumb:active { background: #a7cafd; }
+
+  /* Token table highlight */
+  .token-table td:first-child { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; color: #0958d9; }
+
+  /* Role guide cards */
+  .role-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 16px 0 24px; }
+  .role-card { border: 1px solid var(--border-light); border-radius: var(--radius); padding: 20px; background: #fff; }
+  .role-card .role-icon { font-size: 2rem; margin-bottom: 8px; }
+  .role-card h4 { margin: 0 0 6px; color: #001f51; }
+  .role-card p { font-size: 0.85rem; margin: 0; }
+  .role-card .role-tag { display: inline-block; margin-top: 8px; padding: 2px 8px; background: var(--primary-light); color: var(--primary); border-radius: var(--radius); font-size: 0.75rem; font-weight: 600; }
+  @media (max-width: 768px) { .role-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-header">
+    <div class="logo">
+      <h1>数据中台</h1>
+      <span>Design Specification v2.0</span>
+    </div>
+  </div>
+  <div class="nav-links">
+    <div class="nav-section">概述</div>
+    <a href="#intro">引言与适用范围</a>
+    <a href="#principles">设计原则</a>
+    <a href="#tech-stack">技术栈</a>
+    <div class="nav-section">Design Token 体系</div>
+    <a href="#token-overview">Token 层级总览</a>
+    <a class="nav-sub" href="#token-global">全局 Token</a>
+    <a class="nav-sub" href="#token-color">色彩 Token</a>
+    <a class="nav-sub" href="#token-typography">字体 Token</a>
+    <a class="nav-sub" href="#token-spacing">间距 Token</a>
+    <a class="nav-sub" href="#token-radius">圆角 Token</a>
+    <a class="nav-sub" href="#token-shadow">阴影 Token</a>
+    <a class="nav-sub" href="#token-component">组件 Token</a>
+    <a class="nav-sub" href="#token-feature">业务 Token</a>
+    <div class="nav-section">主题系统</div>
+    <a href="#theme-arch">架构设计</a>
+    <a href="#theme-four">四套主题对比</a>
+    <a href="#theme-new">新建主题指南</a>
+    <a href="#theme-antd">Ant Design 主题联动</a>
+    <div class="nav-section">组件规范</div>
+    <a href="#comp-overview">组件总览</a>
+    <a href="#comp-form">表单 (BasicForm)</a>
+    <a href="#comp-table">表格 (BasicTable)</a>
+    <a href="#comp-modal">弹窗 (BasicModal)</a>
+    <a href="#comp-tree">树 (BasicTree)</a>
+    <a href="#comp-drawer">抽屉 (BasicDrawer)</a>
+    <a href="#comp-graph">图编辑 (BasicGraph)</a>
+    <a href="#comp-icons">图标系统</a>
+    <div class="nav-section">布局规范</div>
+    <a href="#layout-standard">标准布局</a>
+    <a href="#layout-responsive">响应式适配</a>
+    <div class="nav-section">扩展指南</div>
+    <a href="#extend-theme">扩展主题</a>
+    <a href="#extend-component">扩展组件</a>
+    <a href="#migration">变量迁移对照表</a>
+    <div class="nav-section">角色指南</div>
+    <a href="#role-guide">不同角色如何使用</a>
+    <a href="#sync-guide">前后端协同维护</a>
+    <div class="nav-section">附录</div>
+    <a href="#appendix-files">关键文件索引</a>
+    <a href="#appendix-checklist">规范检查清单</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============================================================ -->
+<h1 id="intro" class="anchor">数据中台平台 — 设计规范 v2.0</h1>
+<p>
+  本文档定义了「数据中台」平台的设计规范，涵盖设计原则、Design Token 体系、主题系统架构、
+  组件使用规范、布局标准和扩展指南。适用对象为前端开发人员与 UI/UX 设计师。
+  规范基于项目当前技术栈（Vue 3 + Ant Design Vue 4 + Less + WindiCSS）制定，
+  并对现有的设计资产进行了系统化梳理和分层重构。
+</p>
+
+<div class="callout callout-info">
+  <strong>版本说明：</strong>v2.0 对原有的扁平化 CSS 变量命名进行了分层重构，
+  建立了 <code>Global → Component → Feature</code> 三级 Token 体系。
+  旧变量名仍可使用，新代码请优先采用新命名。详见<a href="#migration">变量迁移对照表</a>。
+</div>
+
+<!-- ============================================================ -->
+<h2 id="principles" class="anchor">设计原则</h2>
+
+<h3>1. 清晰优先</h3>
+<p>数据中台承载大量结构化数据与复杂业务流程，界面设计以确保信息清晰传达为首要目标。
+避免过度装饰，减少视觉噪音。</p>
+
+<h3>2. 一致性</h3>
+<p>相同功能的交互模式、视觉样式、文案表述在整个平台中保持一致。
+降低用户学习成本，提升操作效率。</p>
+
+<h3>3. 主题可切换</h3>
+<p>平台支持四套主题（信息管理 / 蓝色 / 灰色 / 暗黑），所有组件和页面必须基于 CSS 变量构建，
+确保在任意主题下均可正常显示。不允许在组件中硬编码颜色值。</p>
+
+<h3>4. 响应式适配</h3>
+<p>以 1920×1080 为基准设计分辨率，通过 rem 自适应 + 弹性布局 + 最小宽度限制，
+覆盖 1366px ~ 2560px 主流屏幕。滚动区域使用自定义滚动条样式。</p>
+
+<h3>5. 渐进增强</h3>
+<p>核心功能不依赖特定浏览器特性，动画/过渡作为体验增强层。</p>
+
+<!-- ============================================================ -->
+<h2 id="tech-stack" class="anchor">技术栈</h2>
+
+<table>
+  <tr><th>层级</th><th>技术选型</th><th>版本</th></tr>
+  <tr><td>框架</td><td>Vue 3 (Composition API)</td><td>3.5.x</td></tr>
+  <tr><td>UI 组件库</td><td>Ant Design Vue</td><td>4.0.x</td></tr>
+  <tr><td>状态管理</td><td>Pinia</td><td>2.1.x</td></tr>
+  <tr><td>路由</td><td>Vue Router (hash mode)</td><td>4.2.x</td></tr>
+  <tr><td>CSS 预处理</td><td>Less</td><td>4.2.x</td></tr>
+  <tr><td>原子 CSS</td><td>WindiCSS</td><td>3.5.x</td></tr>
+  <tr><td>图标</td><td>@ant-design/icons-vue + unplugin-icons</td><td>6.1.x</td></tr>
+  <tr><td>图可视化</td><td>AntV G6 / X6</td><td>5.x / 3.x</td></tr>
+  <tr><td>代码编辑器</td><td>Monaco Editor</td><td>0.55.x</td></tr>
+  <tr><td>构建工具</td><td>Vite</td><td>4.3.x</td></tr>
+  <tr><td>字体</td><td>方正兰亭黑系列 (FZLanTingHeiS)</td><td>—</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="token-overview" class="anchor">Design Token 层级总览</h2>
+
+<p>Token（设计令牌）是设计系统的原子单位。本规范将 Token 分为三个层级：</p>
+
+<div class="token-tree">
+  <div class="l1">Global Token（全局）</div>
+  <div class="l2">定义基础设计原子：色彩色板、字体、间距、圆角、阴影。不直接绑定语义。</div>
+  <div class="l1" style="margin-top:12px;">Component Token（组件级）</div>
+  <div class="l2">引用 Global Token，定义具体组件的视觉表现。如表格表头背景、弹窗边框等。</div>
+  <div class="l1" style="margin-top:12px;">Feature Token（业务级）</div>
+  <div class="l2">引用 Component Token 或 Global Token，为特定业务场景（数据同步、思维导图等）提供定制变量。</div>
+</div>
+
+<div class="callout callout-warning">
+  <strong>核心规则：</strong>组件样式和页面样式<strong>只能引用 Token 变量</strong>，
+  禁止在样式中硬编码颜色（如 <code>#2575f5</code>、<code>rgba(0,0,0,0.85)</code>）。
+  需要新颜色时，先判断是否可归入现有 Token，否则新增语义化 Feature Token。
+</div>
+
+<!-- ============================================================ -->
+<h2 id="token-global" class="anchor">全局 Token (Global)</h2>
+
+<h3 id="token-color" class="anchor">色彩系统 (Color)</h3>
+
+<p>色彩 Token 定义了平台的基础色板。每个主色提供 5 级梯度（base / hover / active / light / light-hover），
+覆盖正常、悬停、激活、浅色背景等状态。</p>
+
+<h4>品牌色 / 功能色</h4>
+<table class="token-table">
+  <tr><th>Token</th><th>默认值</th><th>用途</th></tr>
+  <tr><td><code>--color-primary</code></td><td>#0D6EF0</td><td>主色：主要按钮、选中态、链接</td></tr>
+  <tr><td><code>--color-primary-hover</code></td><td>#4096FF</td><td>主色悬停态</td></tr>
+  <tr><td><code>--color-primary-active</code></td><td>#0958D9</td><td>主色激活态</td></tr>
+  <tr><td><code>--color-primary-light</code></td><td>#E8F1FE</td><td>主色浅色背景（选中行、标签背景）</td></tr>
+  <tr><td><code>--color-primary-light-hover</code></td><td>#D3E4FD</td><td>主色浅色悬停态</td></tr>
+  <tr><td><code>--color-success</code></td><td>#52C41A</td><td>成功色</td></tr>
+  <tr><td><code>--color-success-hover</code></td><td>#73D13D</td><td>成功色悬停</td></tr>
+  <tr><td><code>--color-success-light</code></td><td>#EDF7ED</td><td>成功色浅色背景</td></tr>
+  <tr><td><code>--color-warning</code></td><td>#FAAD14</td><td>警告色</td></tr>
+  <tr><td><code>--color-warning-hover</code></td><td>#FFC53D</td><td>警告色悬停</td></tr>
+  <tr><td><code>--color-warning-light</code></td><td>#FFF8E8</td><td>警告色浅色背景</td></tr>
+  <tr><td><code>--color-error</code></td><td>#F5222D</td><td>错误/危险色</td></tr>
+  <tr><td><code>--color-error-hover</code></td><td>#FF4D4F</td><td>错误色悬停</td></tr>
+  <tr><td><code>--color-error-light</code></td><td>#FEF2F2</td><td>错误色浅色背景</td></tr>
+  <tr><td><code>--color-info</code></td><td>#1890FF</td><td>信息色</td></tr>
+  <tr><td><code>--color-link</code></td><td>#1890FF</td><td>链接色</td></tr>
+  <tr><td><code>--color-link-hover</code></td><td>#40A9FF</td><td>链接悬停色</td></tr>
+</table>
+
+<h4>中性色 (Neutral)</h4>
+<table class="token-table">
+  <tr><th>Token</th><th>默认值</th><th>用途</th></tr>
+  <tr><td><code>--color-bg-base</code></td><td>#EFF0F2</td><td>页面基础背景色</td></tr>
+  <tr><td><code>--color-bg-container</code></td><td>#FFFFFF</td><td>容器/卡片背景色</td></tr>
+  <tr><td><code>--color-bg-elevated</code></td><td>#FFFFFF</td><td>浮层/弹窗背景色</td></tr>
+  <tr><td><code>--color-bg-tertiary</code></td><td>#F5F5F5</td><td>三级背景色（禁用态、斑马纹）</td></tr>
+  <tr><td><code>--color-bg-mask</code></td><td>rgba(0,0,0,0.45)</td><td>蒙层背景</td></tr>
+  <tr><td><code>--color-text-primary</code></td><td>rgba(0,0,0,0.85)</td><td>主要文字</td></tr>
+  <tr><td><code>--color-text-secondary</code></td><td>rgba(0,0,0,0.65)</td><td>次要文字</td></tr>
+  <tr><td><code>--color-text-tertiary</code></td><td>rgba(0,0,0,0.45)</td><td>辅助/占位文字</td></tr>
+  <tr><td><code>--color-text-disabled</code></td><td>rgba(0,0,0,0.25)</td><td>禁用态文字</td></tr>
+  <tr><td><code>--color-text-inverse</code></td><td>#FFFFFF</td><td>反色文字（深色背景上）</td></tr>
+  <tr><td><code>--color-border-base</code></td><td>#D9D9D9</td><td>默认边框</td></tr>
+  <tr><td><code>--color-border-secondary</code></td><td>#F0F0F0</td><td>浅色边框</td></tr>
+  <tr><td><code>--color-border-hover</code></td><td>#4096FF</td><td>悬停边框（主色系）</td></tr>
+</table>
+
+<h4>四主题色板速览</h4>
+<div class="theme-compare">
+  <div class="theme-card">
+    <div class="theme-card-header" style="background:linear-gradient(135deg,#0D6EF0,#4096FF);">信息管理 (default)</div>
+    <div class="theme-card-body" style="background:#fff;">
+      <div class="row"><span class="label">主色</span><span style="color:#0D6EF0;">#0D6EF0</span></div>
+      <div class="row"><span class="label">背景</span><span>#EFF0F2</span></div>
+      <div class="row"><span class="label">容器</span><span>#FFFFFF</span></div>
+      <div class="row"><span class="label">文字</span><span>rgba(0,0,0,0.85)</span></div>
+      <div class="row"><span class="label">边框</span><span>#D9D9D9</span></div>
+    </div>
+  </div>
+  <div class="theme-card">
+    <div class="theme-card-header" style="background:linear-gradient(135deg,#1A5E72,#2C8FA4);">暗黑 (dark)</div>
+    <div class="theme-card-body" style="background:#141414; color:#c8c8c8;">
+      <div class="row"><span class="label">主色</span><span style="color:#1A5E72;">#1A5E72</span></div>
+      <div class="row"><span class="label">背景</span><span>#141414</span></div>
+      <div class="row"><span class="label">容器</span><span>#232323</span></div>
+      <div class="row"><span class="label">文字</span><span>#C8C8C8</span></div>
+      <div class="row"><span class="label">边框</span><span>#434343</span></div>
+    </div>
+  </div>
+  <div class="theme-card">
+    <div class="theme-card-header" style="background:linear-gradient(135deg,#1F609B,#25A1FF);">蓝色 (blue)</div>
+    <div class="theme-card-body" style="background:#143250; color:#fff;">
+      <div class="row"><span class="label">主色</span><span style="color:#25A1FF;">#25A1FF</span></div>
+      <div class="row"><span class="label">背景</span><span>#143250</span></div>
+      <div class="row"><span class="label">容器</span><span>#234B73</span></div>
+      <div class="row"><span class="label">文字</span><span>#FFFFFF</span></div>
+      <div class="row"><span class="label">边框</span><span>#416482</span></div>
+    </div>
+  </div>
+  <div class="theme-card">
+    <div class="theme-card-header" style="background:linear-gradient(135deg,#8E8E8E,#5E697F);">灰色 (grey)</div>
+    <div class="theme-card-body" style="background:#DEDEDE; color:#434343;">
+      <div class="row"><span class="label">主色</span><span style="color:#5E697F;">#5E697F</span></div>
+      <div class="row"><span class="label">背景</span><span>#DEDEDE</span></div>
+      <div class="row"><span class="label">容器</span><span>#C3C3C3</span></div>
+      <div class="row"><span class="label">文字</span><span>#434343</span></div>
+      <div class="row"><span class="label">边框</span><span>#91D5FF</span></div>
+    </div>
+  </div>
+</div>
+
+<h3 id="token-typography" class="anchor">字体系统 (Typography)</h3>
+
+<table class="token-table">
+  <tr><th>Token</th><th>值</th><th>用途</th></tr>
+  <tr><td><code>--font-family-base</code></td><td>'FZLanTingHeiS-M-GB', -apple-system, ...</td><td>正文默认字体</td></tr>
+  <tr><td><code>--font-family-title</code></td><td>'FZLanTingHeiS-DB1-GB', ...</td><td>标题/菜单字体（中粗黑）</td></tr>
+  <tr><td><code>--font-family-heavy</code></td><td>'FZLanTingHeiS-B-GB', ...</td><td>强调字体（粗黑）</td></tr>
+  <tr><td><code>--font-family-num</code></td><td>'FZLanTingHeiS-M-GB', ...</td><td>数字/数据字体</td></tr>
+</table>
+
+<table class="token-table">
+  <tr><th>Token</th><th>值</th><th>用途</th></tr>
+  <tr><td><code>--font-size-xs</code></td><td>12px</td><td>说明文字、标签、角标</td></tr>
+  <tr><td><code>--font-size-sm</code></td><td>14px</td><td>辅助文字、分页、描述</td></tr>
+  <tr><td><code>--font-size-base</code></td><td>16px</td><td>正文、表格内容、表单</td></tr>
+  <tr><td><code>--font-size-lg</code></td><td>18px</td><td>弹窗标题、卡片标题</td></tr>
+  <tr><td><code>--font-size-xl</code></td><td>20px</td><td>菜单文字</td></tr>
+  <tr><td><code>--font-size-xxl</code></td><td>24px</td><td>页面大标题</td></tr>
+</table>
+
+<table class="token-table">
+  <tr><th>Token</th><th>值</th><th>用途</th></tr>
+  <tr><td><code>--font-weight-normal</code></td><td>400</td><td>正文</td></tr>
+  <tr><td><code>--font-weight-medium</code></td><td>500</td><td>中等强调</td></tr>
+  <tr><td><code>--font-weight-semibold</code></td><td>600</td><td>标题/表头</td></tr>
+  <tr><td><code>--font-weight-bold</code></td><td>700</td><td>强强调</td></tr>
+  <tr><td><code>--line-height-base</code></td><td>1.5</td><td>正文行高</td></tr>
+  <tr><td><code>--line-height-heading</code></td><td>1.3</td><td>标题行高</td></tr>
+  <tr><td><code>--line-height-compact</code></td><td>1.2</td><td>紧凑行高（表格、列表）</td></tr>
+</table>
+
+<div class="callout callout-info">
+  <strong>字体加载说明：</strong>项目使用方正兰亭黑系列（FZLanTingHeiS）作为品牌字体，
+  包含粗黑(B)、中粗黑(DB1)、中黑(DB)、准黑(M) 四个字重。字体文件位于 <code>src/assets/styles/ttf/</code>。
+  请确保有合法的字体使用授权。系统字体栈作为降级方案。
+</div>
+
+<h3 id="token-spacing" class="anchor">间距系统 (Spacing)</h3>
+
+<p>采用 4px 基准的间距梯度，与 WindiCSS 原子类配合使用：</p>
+
+<table class="token-table">
+  <tr><th>Token</th><th>值</th><th>WindiCSS 类名示例</th></tr>
+  <tr><td><code>--space-xs</code></td><td>4px</td><td><code>p-4px</code> <code>gap-4px</code></td></tr>
+  <tr><td><code>--space-sm</code></td><td>8px</td><td><code>p-8px</code> <code>m-8px</code></td></tr>
+  <tr><td><code>--space-md</code></td><td>12px</td><td><code>p-12px</code> <code>gap-12px</code></td></tr>
+  <tr><td><code>--space-base</code></td><td>16px</td><td><code>p-16px</code> <code>m-16px</code></td></tr>
+  <tr><td><code>--space-lg</code></td><td>20px</td><td><code>p-20px</code> <code>gap-20px</code></td></tr>
+  <tr><td><code>--space-xl</code></td><td>24px</td><td><code>p-24px</code> <code>m-24px</code></td></tr>
+  <tr><td><code>--space-2xl</code></td><td>32px</td><td><code>p-32px</code></td></tr>
+  <tr><td><code>--space-3xl</code></td><td>48px</td><td><code>p-48px</code></td></tr>
+</table>
+
+<h4>页面级布局常量</h4>
+<table class="token-table">
+  <tr><th>Token</th><th>值</th><th>说明</th></tr>
+  <tr><td><code>--layout-header-height</code></td><td>98px</td><td>顶部导航高度</td></tr>
+  <tr><td><code>--layout-sider-width</code></td><td>240px</td><td>侧边栏宽度</td></tr>
+  <tr><td><code>--layout-menu-height</code></td><td>42px</td><td>菜单项高度</td></tr>
+  <tr><td><code>--layout-content-padding</code></td><td>15px</td><td>内容区水平内边距</td></tr>
+</table>
+
+<h3 id="token-radius" class="anchor">圆角系统 (Border Radius)</h3>
+
+<table class="token-table">
+  <tr><th>Token</th><th>值</th><th>适用场景</th></tr>
+  <tr><td><code>--radius-none</code></td><td>0</td><td>表格、分割线</td></tr>
+  <tr><td><code>--radius-sm</code></td><td>2px</td><td>分页器、小标签、输入框内元素</td></tr>
+  <tr><td><code>--radius-base</code></td><td>3px</td><td>默认圆角（当前项目标准）</td></tr>
+  <tr><td><code>--radius-md</code></td><td>4px</td><td>按钮、输入框、弹窗、菜单项</td></tr>
+  <tr><td><code>--radius-lg</code></td><td>6px</td><td>卡片、面板</td></tr>
+  <tr><td><code>--radius-round</code></td><td>30px</td><td>滚动条、胶囊标签</td></tr>
+</table>
+
+<h3 id="token-shadow" class="anchor">阴影系统 (Box Shadow)</h3>
+
+<table class="token-table">
+  <tr><th>Token</th><th>值</th><th>适用场景</th></tr>
+  <tr><td><code>--shadow-sm</code></td><td>0 1px 2px rgba(0,0,0,0.06)</td><td>轻微浮起（卡片悬停）</td></tr>
+  <tr><td><code>--shadow-base</code></td><td>0 2px 8px rgba(0,0,0,0.15)</td><td>默认阴影（下拉菜单）</td></tr>
+  <tr><td><code>--shadow-md</code></td><td>0 3px 6px -4px rgba(0,0,0,0.12), 0 6px 16px rgba(0,0,0,0.08)</td><td>弹窗阴影</td></tr>
+  <tr><td><code>--shadow-lg</code></td><td>0 6px 16px rgba(0,0,0,0.08), 0 9px 28px rgba(0,0,0,0.05)</td><td>抽屉阴影</td></tr>
+  <tr><td><code>--shadow-content</code></td><td>0px 0px 6px rgba(57,128,240,0.3)</td><td>内容区发光边框（当前项目特有）</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="token-component" class="anchor">组件 Token (Component)</h2>
+
+<p>组件 Token 引用全局 Token 或直接定义组件专属视觉变量。以下按组件分类列出：</p>
+
+<h3>表格 (Table)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>引用 / 默认值</th><th>说明</th></tr>
+  <tr><td><code>--comp-table-border-color</code></td><td>var(--color-primary-light)</td><td>表格外边框色</td></tr>
+  <tr><td><code>--comp-table-th-bg</code></td><td>var(--color-primary-light)</td><td>表头背景色</td></tr>
+  <tr><td><code>--comp-table-th-text</code></td><td>var(--color-text-tertiary)</td><td>表头文字色</td></tr>
+  <tr><td><code>--comp-table-td-text</code></td><td>var(--color-text-primary)</td><td>单元格文字色</td></tr>
+  <tr><td><code>--comp-table-td-border</code></td><td>var(--comp-table-th-bg)</td><td>单元格分隔线色</td></tr>
+  <tr><td><code>--comp-table-row-hover-bg</code></td><td>rgba(0,0,0,0.04)</td><td>行悬停背景</td></tr>
+  <tr><td><code>--comp-table-row-striped-bg</code></td><td>#F1F8FE</td><td>斑马纹背景</td></tr>
+  <tr><td><code>--comp-table-fixed-bg</code></td><td>var(--color-bg-secondary)</td><td>固定列背景</td></tr>
+  <tr><td><code>--comp-table-pagination-text</code></td><td>var(--color-text-secondary)</td><td>分页器文字色</td></tr>
+  <tr><td><code>--comp-table-pagination-active-bg</code></td><td>var(--color-primary)</td><td>分页器激活背景</td></tr>
+  <tr><td><code>--comp-table-pagination-active-text</code></td><td>var(--color-text-inverse)</td><td>分页器激活文字</td></tr>
+  <tr><td><code>--comp-table-total-text</code></td><td>var(--color-text-secondary)</td><td>总记录数文字</td></tr>
+  <tr><td><code>--comp-table-total-number</code></td><td>var(--color-primary)</td><td>总记录数数字</td></tr>
+  <tr><td><code>--comp-table-form-label</code></td><td>var(--color-text-primary)</td><td>表格内表单标签色</td></tr>
+  <tr><td><code>--comp-table-form-border</code></td><td>#A4B5D0</td><td>表格内表单输入框边框</td></tr>
+</table>
+
+<h3>弹窗 (Modal)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>引用 / 默认值</th><th>说明</th></tr>
+  <tr><td><code>--comp-modal-bg</code></td><td>var(--color-bg-elevated)</td><td>弹窗背景色</td></tr>
+  <tr><td><code>--comp-modal-header-bg</code></td><td>linear-gradient(91deg, #F4F7FF, #DFECFF)</td><td>弹窗标题栏渐变</td></tr>
+  <tr><td><code>--comp-modal-header-title</code></td><td>var(--color-text-primary)</td><td>弹窗标题文字色</td></tr>
+  <tr><td><code>--comp-modal-header-border</code></td><td>#CCDFFD</td><td>标题栏底部边框</td></tr>
+  <tr><td><code>--comp-modal-border</code></td><td>#CCDFFD</td><td>弹窗整体边框</td></tr>
+  <tr><td><code>--comp-modal-close-icon</code></td><td>var(--color-text-primary)</td><td>关闭按钮颜色</td></tr>
+  <tr><td><code>--comp-modal-form-label</code></td><td>var(--color-text-tertiary)</td><td>弹窗内表单标签色</td></tr>
+  <tr><td><code>--comp-modal-form-border</code></td><td>#A4B5D0</td><td>弹窗内表单边框</td></tr>
+  <tr><td><code>--comp-modal-form-value</code></td><td>var(--color-text-primary)</td><td>弹窗内表单值色</td></tr>
+  <tr><td><code>--comp-modal-form-placeholder</code></td><td>#A4B5D0</td><td>弹窗内表单占位符色</td></tr>
+  <tr><td><code>--comp-modal-form-disabled-border</code></td><td>rgba(164,181,208,0.2)</td><td>弹窗内表单禁用边框</td></tr>
+  <tr><td><code>--comp-modal-form-disabled-text</code></td><td>var(--color-text-disabled)</td><td>弹窗内表单禁用文字</td></tr>
+</table>
+
+<h3>菜单 (Menu)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>引用 / 默认值</th><th>说明</th></tr>
+  <tr><td><code>--comp-menu-text</code></td><td>#496287</td><td>菜单文字色</td></tr>
+  <tr><td><code>--comp-menu-active-bg</code></td><td>linear-gradient(180deg, #6FAAFF, #2575F5)</td><td>菜单激活背景渐变</td></tr>
+  <tr><td><code>--comp-menu-hover-text</code></td><td>#2575F5</td><td>菜单悬停文字色</td></tr>
+  <tr><td><code>--comp-menu-hover-bg</code></td><td>rgba(163,199,255,0.4)</td><td>菜单悬停背景色</td></tr>
+  <tr><td><code>--comp-menu-sider-bg</code></td><td>rgba(255,255,255,0.5)</td><td>侧边栏菜单背景</td></tr>
+  <tr><td><code>--comp-menu-sider-text</code></td><td>#001F51</td><td>侧边栏菜单文字</td></tr>
+  <tr><td><code>--comp-menu-submenu-text</code></td><td>rgba(0,31,81,0.75)</td><td>子菜单文字色</td></tr>
+</table>
+
+<h3>标签导航 (Tabs)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>引用 / 默认值</th><th>说明</th></tr>
+  <tr><td><code>--comp-tabs-text</code></td><td>rgba(0,31,81,0.66)</td><td>Tab 默认文字色</td></tr>
+  <tr><td><code>--comp-tabs-bg</code></td><td>rgba(192,213,236,0.6)</td><td>Tab 默认背景色</td></tr>
+  <tr><td><code>--comp-tabs-active-text</code></td><td>var(--color-primary)</td><td>Tab 激活文字色</td></tr>
+  <tr><td><code>--comp-tabs-active-bg</code></td><td>rgba(247,250,253,0.65)</td><td>Tab 激活背景色</td></tr>
+  <tr><td><code>--comp-tabs-tree-text</code></td><td>#FFFFFF</td><td>文件树 Tab 文字色</td></tr>
+</table>
+
+<h3>树 (Tree)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>引用 / 默认值</th><th>说明</th></tr>
+  <tr><td><code>--comp-tree-node-text</code></td><td>#18181A</td><td>节点文字色</td></tr>
+  <tr><td><code>--comp-tree-node-selected-bg</code></td><td>rgba(163,199,255,0.3)</td><td>节点选中背景</td></tr>
+  <tr><td><code>--comp-tree-node-selected-text</code></td><td>var(--color-primary)</td><td>节点选中文字色</td></tr>
+  <tr><td><code>--comp-tree-node-hover-bg</code></td><td>rgba(0,0,0,0.04)</td><td>节点悬停背景</td></tr>
+</table>
+
+<h3>滚动条 (Scrollbar)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>引用 / 默认值</th><th>说明</th></tr>
+  <tr><td><code>--comp-scrollbar-width</code></td><td>6px</td><td>滚动条宽度/高度</td></tr>
+  <tr><td><code>--comp-scrollbar-track-bg</code></td><td>transparent</td><td>滚动条轨道背景</td></tr>
+  <tr><td><code>--comp-scrollbar-thumb</code></td><td>#A7CAFD</td><td>滚动条滑块色</td></tr>
+  <tr><td><code>--comp-scrollbar-thumb-hover</code></td><td>#A7CAFD</td><td>滚动条滑块悬停色</td></tr>
+  <tr><td><code>--comp-scrollbar-thumb-active</code></td><td>#A7CAFD</td><td>滚动条滑块激活色</td></tr>
+</table>
+
+<h3>步骤条 (Steps)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>引用 / 默认值</th><th>说明</th></tr>
+  <tr><td><code>--comp-steps-title</code></td><td>#496287</td><td>步骤标题色</td></tr>
+  <tr><td><code>--comp-steps-circle-bg</code></td><td>rgba(0,98,229,0.13)</td><td>步骤图标背景</td></tr>
+  <tr><td><code>--comp-steps-circle-text</code></td><td>var(--color-primary)</td><td>步骤图标文字色</td></tr>
+  <tr><td><code>--comp-steps-active</code></td><td>var(--color-primary)</td><td>步骤激活态色</td></tr>
+</table>
+
+<h3>提示框 (Alert)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>引用 / 默认值</th><th>说明</th></tr>
+  <tr><td><code>--comp-alert-bg</code></td><td>rgba(230,244,255,0.8)</td><td>提示框背景</td></tr>
+  <tr><td><code>--comp-alert-border</code></td><td>rgba(145,202,255,0.8)</td><td>提示框边框</td></tr>
+</table>
+
+<h3>按钮 (Button)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>引用 / 默认值</th><th>说明</th></tr>
+  <tr><td><code>--comp-btn-default-bg</code></td><td>var(--color-primary)</td><td>默认按钮背景</td></tr>
+  <tr><td><code>--comp-btn-font-size</code></td><td>var(--font-size-base)</td><td>按钮文字大小</td></tr>
+  <tr><td><code>--comp-btn-radius</code></td><td>var(--radius-base)</td><td>按钮圆角</td></tr>
+  <tr><td><code>--comp-btn-height</code></td><td>38px</td><td>按钮高度（搜索区/表单）</td></tr>
+</table>
+
+<h3>抽屉 (Drawer) <span class="badge badge-new">新增</span></h3>
+<table class="token-table">
+  <tr><th>Token</th><th>引用 / 默认值</th><th>说明</th></tr>
+  <tr><td><code>--comp-drawer-bg</code></td><td>linear-gradient(#F4F7FF, #DFECFF)</td><td>抽屉背景渐变 <span class="badge badge-warning">建议改为引用 Token</span></td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="token-feature" class="anchor">业务 Token (Feature)</h2>
+
+<p>业务 Token 为特定功能模块提供专属样式变量，命名前缀为 <code>--feat-{module}-*</code>。</p>
+
+<h3>数据同步 (DataSync)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>说明</th></tr>
+  <tr><td><code>--feat-datasync-arrow-color</code></td><td>同步箭头颜色</td></tr>
+  <tr><td><code>--feat-datasync-empty-text</code></td><td>空数据提示文字色</td></tr>
+  <tr><td><code>--feat-datasync-step-border</code></td><td>步骤卡片边框色</td></tr>
+  <tr><td><code>--feat-datasync-step-hover-bg</code></td><td>步骤卡片悬停背景</td></tr>
+  <tr><td><code>--feat-datasync-step-hover-border</code></td><td>步骤卡片悬停边框</td></tr>
+  <tr><td><code>--feat-datasync-step-active-bg</code></td><td>步骤卡片激活背景</td></tr>
+  <tr><td><code>--feat-datasync-step-active-border</code></td><td>步骤卡片激活边框</td></tr>
+  <tr><td><code>--feat-datasync-step-complete-bg</code></td><td>步骤卡片完成背景</td></tr>
+  <tr><td><code>--feat-datasync-step-complete-border</code></td><td>步骤卡片完成边框</td></tr>
+  <tr><td><code>--feat-datasync-step-complete-text</code></td><td>步骤卡片完成文字</td></tr>
+  <tr><td><code>--feat-datasync-step-pending-bg</code></td><td>步骤卡片待处理背景</td></tr>
+  <tr><td><code>--feat-datasync-step-pending-border</code></td><td>步骤卡片待处理边框</td></tr>
+  <tr><td><code>--feat-datasync-step-pending-text</code></td><td>步骤卡片待处理文字</td></tr>
+  <tr><td><code>--feat-datasync-step-readonly-bg</code></td><td>步骤卡片只读背景</td></tr>
+  <tr><td><code>--feat-datasync-step-readonly-border</code></td><td>步骤卡片只读边框</td></tr>
+  <tr><td><code>--feat-datasync-step-readonly-text</code></td><td>步骤卡片只读文字</td></tr>
+  <tr><td><code>--feat-datasync-step-collapse-bg</code></td><td>步骤折叠区背景</td></tr>
+  <tr><td><code>--feat-datasync-card-blue-bg</code></td><td>统计卡片-蓝色渐变</td></tr>
+  <tr><td><code>--feat-datasync-card-green-bg</code></td><td>统计卡片-绿色渐变</td></tr>
+  <tr><td><code>--feat-datasync-card-red-bg</code></td><td>统计卡片-红色渐变</td></tr>
+  <tr><td><code>--feat-datasync-card-blue-text</code></td><td>统计卡片-蓝色文字</td></tr>
+  <tr><td><code>--feat-datasync-card-green-text</code></td><td>统计卡片-绿色文字</td></tr>
+  <tr><td><code>--feat-datasync-card-red-text</code></td><td>统计卡片-红色文字</td></tr>
+  <tr><td><code>--feat-datasync-card-purple-text</code></td><td>统计卡片-紫色文字</td></tr>
+  <tr><td><code>--feat-datasync-list-hover-bg</code></td><td>同步来源列表悬停背景</td></tr>
+  <tr><td><code>--feat-datasync-list-hover-text</code></td><td>同步来源列表悬停文字</td></tr>
+  <tr><td><code>--feat-datasync-table-selected-bg</code></td><td>表同步配置选中背景</td></tr>
+  <tr><td><code>--feat-datasync-empty-image</code></td><td>空数据占位图</td></tr>
+  <tr><td><code>--feat-datasync-resource-image</code></td><td>数据源占位图</td></tr>
+  <tr><td><code>--feat-datasync-card-total-bg-image</code></td><td>总任务数卡片背景图</td></tr>
+  <tr><td><code>--feat-datasync-card-normal-bg-image</code></td><td>正常任务卡片背景图</td></tr>
+  <tr><td><code>--feat-datasync-card-stop-bg-image</code></td><td>停止任务卡片背景图</td></tr>
+</table>
+
+<h3>思维导图 (MindMap)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>说明</th></tr>
+  <tr><td><code>--feat-mindmap-bg</code></td><td>思维导图画布背景</td></tr>
+  <tr><td><code>--feat-mindmap-dot-color</code></td><td>导图网格点颜色</td></tr>
+  <tr><td><code>--feat-mindmap-toolbar-opacity</code></td><td>工具栏透明度</td></tr>
+  <tr><td><code>--feat-mindmap-toolbar-bg</code></td><td>工具栏背景色</td></tr>
+  <tr><td><code>--feat-mindmap-toolbar-border</code></td><td>工具栏边框色</td></tr>
+  <tr><td><code>--feat-mindmap-toolbar-selected-bg</code></td><td>工具栏选中项背景</td></tr>
+</table>
+
+<h3>主题域管理 (DataDomain)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>说明</th></tr>
+  <tr><td><code>--feat-datadomain-bg</code></td><td>主题域页面背景</td></tr>
+  <tr><td><code>--feat-datadomain-view-selected-bg</code></td><td>视图切换选中背景</td></tr>
+  <tr><td><code>--feat-datadomain-view-default-text</code></td><td>视图切换默认文字</td></tr>
+  <tr><td><code>--feat-datadomain-view-border</code></td><td>视图切换边框</td></tr>
+  <tr><td><code>--feat-datadomain-detail-bg</code></td><td>详情页背景渐变</td></tr>
+  <tr><td><code>--feat-datadomain-detail-info-bg</code></td><td>详情信息卡片背景</td></tr>
+  <tr><td><code>--feat-datadomain-table-td-text</code></td><td>详情表格文字色</td></tr>
+</table>
+
+<h3>数据分仓 (DataWarehouse)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>说明</th></tr>
+  <tr><td><code>--feat-datawarehouse-card-label</code></td><td>分仓卡片标签色</td></tr>
+  <tr><td><code>--feat-datawarehouse-card-value</code></td><td>分仓卡片数值色</td></tr>
+</table>
+
+<h3>元数据采集 (DataCollect)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>说明</th></tr>
+  <tr><td><code>--feat-datacollect-card-bg</code></td><td>采集卡片背景</td></tr>
+  <tr><td><code>--feat-datacollect-card-header-bg</code></td><td>采集卡片头部背景</td></tr>
+  <tr><td><code>--feat-datacollect-card-header-title</code></td><td>采集卡片头部标题色</td></tr>
+  <tr><td><code>--feat-datacollect-card-border</code></td><td>采集卡片边框色</td></tr>
+  <tr><td><code>--feat-datacollect-card-text</code></td><td>采集卡片文字色</td></tr>
+  <tr><td><code>--feat-datacollect-card-shadow</code></td><td>采集卡片阴影色</td></tr>
+</table>
+
+<h3>元数据目录统计卡片 (Metadata)</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>说明</th></tr>
+  <tr><td><code>--feat-metadata-card-datasource-bg</code></td><td>数据源数量卡片背景</td></tr>
+  <tr><td><code>--feat-metadata-card-table-bg</code></td><td>表数量卡片背景</td></tr>
+  <tr><td><code>--feat-metadata-card-column-bg</code></td><td>列数量卡片背景</td></tr>
+  <tr><td><code>--feat-metadata-card-business-domain-bg</code></td><td>业务域卡片背景</td></tr>
+  <tr><td><code>--feat-metadata-card-subject-domain-bg</code></td><td>主题域卡片背景</td></tr>
+  <tr><td><code>--feat-metadata-card-subject-bg</code></td><td>主题卡片背景</td></tr>
+  <tr><td><code>--feat-metadata-card-data-model-bg</code></td><td>数据模型卡片背景色</td></tr>
+</table>
+
+<h3>杂项</h3>
+<table class="token-table">
+  <tr><th>Token</th><th>说明</th></tr>
+  <tr><td><code>--feat-dataicon-border</code></td><td>DataIcon 选择器边框色</td></tr>
+  <tr><td><code>--feat-radio-checked-color</code></td><td>Radio 选中色（部分主题需覆盖默认）</td></tr>
+  <tr><td><code>--feat-half-white</code></td><td>半透明白色叠加色</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="theme-arch" class="anchor">主题系统架构</h2>
+
+<h3>工作原理</h3>
+<p>主题系统采用 <strong>CSS Class 切换 + CSS 自定义属性</strong> 方案：</p>
+<ol>
+  <li>每套主题将变量定义在 <code>.theme-{name}</code> 类下</li>
+  <li>主题切换时，Pinia Store 操作 <code>&lt;html&gt;</code> 元素的 class</li>
+  <li>所有组件通过 <code>var(--token)</code> 引用变量，浏览器自动重新计算样式</li>
+  <li>全局过渡动画（0.3s ease）平滑视觉切换</li>
+</ol>
+
+<h3>关键文件</h3>
+<table>
+  <tr><th>文件</th><th>职责</th></tr>
+  <tr><td><code>src/store/modules/theme.js</code></td><td>主题状态管理：切换、持久化、CSS 变量读取</td></tr>
+  <tr><td><code>src/assets/styles/themes/default.less</code></td><td>信息管理主题（默认）— 130+ 变量</td></tr>
+  <tr><td><code>src/assets/styles/themes/dark.less</code></td><td>暗黑主题（夜晚）</td></tr>
+  <tr><td><code>src/assets/styles/themes/blue.less</code></td><td>蓝色主题（白昼）</td></tr>
+  <tr><td><code>src/assets/styles/themes/grey.less</code></td><td>灰色主题（白昼）</td></tr>
+  <tr><td><code>src/assets/styles/themes/themes.less</code></td><td>主题全局样式：布局背景、滚动条、菜单基础样式、过渡动画</td></tr>
+  <tr><td><code>src/assets/styles/main.less</code></td><td>样式入口：导入所有主题 + 组件覆盖 + 图标</td></tr>
+  <tr><td><code>src/layouts/index.vue</code></td><td>根布局：绑定 Ant Design ConfigProvider 主题 Token</td></tr>
+  <tr><td><code>src/layouts/theme/ThemeSwitch.vue</code></td><td>主题切换 UI 组件</td></tr>
+</table>
+
+<h3>数据流</h3>
+<pre><code>用户点击 ThemeSwitch
+  → themeStore.setTheme('dark')
+    → localStorage.setItem('theme', 'dark')
+    → applyTheme('dark')
+      → html.classList.remove('theme-default/blue/grey')
+      → html.classList.add('theme-dark')
+        → CSS 级联生效：所有 var(--*) 切换为 dark 主题值
+    → Vue watch 触发（layouts/index.vue）
+      → getCssVariable() 读取 7 个 Computed CSS 变量
+      → 传给 &lt;a-config-provider :theme="{token:{...}}"&gt;
+        → Ant Design 组件内部变量同步更新</code></pre>
+
+<!-- ============================================================ -->
+<h2 id="theme-four" class="anchor">四套主题对比</h2>
+
+<table>
+  <tr><th>属性</th><th>信息管理 (default)</th><th>暗黑 (dark)</th><th>蓝色 (blue)</th><th>灰色 (grey)</th></tr>
+  <tr><td>主色</td><td>#0D6EF0</td><td>#1A5E72</td><td>#25A1FF</td><td>#5E697F</td></tr>
+  <tr><td>页面背景</td><td>#EFF0F2 (浅灰)</td><td>#141414 (近黑)</td><td>#143250 (深蓝)</td><td>#DEDEDE (中灰)</td></tr>
+  <tr><td>容器背景</td><td>#FFFFFF (白)</td><td>#232323 (深灰)</td><td>#234B73 (蓝灰)</td><td>#C3C3C3 (浅灰)</td></tr>
+  <tr><td>主文字色</td><td>rgba(0,0,0,0.85)</td><td>#C8C8C8</td><td>#FFFFFF</td><td>#434343</td></tr>
+  <tr><td>边框色</td><td>#D9D9D9</td><td>#434343</td><td>#416482</td><td>#91D5FF</td></tr>
+  <tr><td>头部渐变</td><td>纯色 #0D6EF0</td><td>#373737 → #2D2926</td><td>#1F609B → #00498D</td><td>#8E8E8E → #36383B</td></tr>
+  <tr><td>菜单激活</td><td>渐变蓝</td><td>实色 #1A5E72</td><td>渐变蓝</td><td>实色 #5E697F</td></tr>
+  <tr><td>背景图片</td><td>有 (bg.png + 头部装饰图)</td><td>无</td><td>无</td><td>无</td></tr>
+  <tr><td>适用场景</td><td>日常办公</td><td>弱光环境</td><td>白昼强光</td><td>护眼低对比</td></tr>
+</table>
+
+<div class="callout callout-warning">
+  <strong>注意：</strong>default 主题的 Header 背景使用了硬编码图片路径（
+  <code>nav-bg-left.png</code>、<code>nav-bg-right.png</code>），
+  这与主题系统的变量化原则不一致。建议将这些图片路径也抽成 CSS 变量（
+  <code>--layout-header-bg-image-left</code>、<code>--layout-header-bg-image-right</code>），
+  其他主题可设置为 <code>none</code>。
+</div>
+
+<!-- ============================================================ -->
+<h2 id="theme-new" class="anchor">新建主题指南</h2>
+
+<h3>步骤</h3>
+<ol>
+  <li><strong>创建变量文件：</strong>在 <code>src/assets/styles/themes/</code> 下新建 <code>your-theme.less</code></li>
+  <li><strong>定义全部 CSS 变量：</strong>参照 <code>default.less</code> 的结构，按 Global → Component → Feature 三层覆盖所有变量。最低要求覆盖全部 Global Token 和 Component Token。</li>
+  <li><strong>注册到样式入口：</strong>在 <code>src/assets/styles/main.less</code> 中 <code>@import "themes/your-theme";</code></li>
+  <li><strong>注册到 Store：</strong>在 <code>src/store/modules/theme.js</code> 的 <code>themes</code> 数组中添加 <code>{ name: 'your-theme', label: '你的主题名' }</code></li>
+  <li><strong>更新切换 UI：</strong>ThemeSwitch.vue 会自动从 themes 数组渲染，无需额外修改</li>
+</ol>
+
+<h3>强制检查清单</h3>
+<div class="callout callout-success">
+  <strong>新主题必须满足以下条件：</strong>
+  <ul style="margin:8px 0 0 16px;">
+    <li>✅ 覆盖 <strong>全部</strong> 130+ 个 CSS 变量（不可遗漏任何一个）</li>
+    <li>✅ 亮色主题与暗色主题的对比度分别满足 WCAG AA 标准</li>
+    <li>✅ 表单、表格、弹窗在所有状态下可清晰辨认（禁用态、错误态、悬停态）</li>
+    <li>✅ 在 4 个核心页面验证：数据表格页、表单弹窗页、树形列表页、数据同步配置页</li>
+    <li>✅ 滚动条与背景有足够对比度，用户可以找到并拖拽滚动条</li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="theme-antd" class="anchor">Ant Design 主题联动</h2>
+
+<p>项目通过 <code>&lt;a-config-provider :theme="antdTheme"&gt;</code> 将项目自身的 CSS 变量桥接到 Ant Design Vue 4 的 Design Token 系统：</p>
+
+<pre><code>// src/layouts/index.vue
+watch(
+  () => themeStore.currentTheme,
+  () => {
+    antdTheme.value['token'] = {
+      colorBgBase:     themeStore.getCssVariable('--color-bg-container'),
+      colorPrimary:    themeStore.getCssVariable('--color-primary'),
+      colorSuccess:    themeStore.getCssVariable('--color-success'),
+      colorWarning:    themeStore.getCssVariable('--color-warning'),
+      colorError:      themeStore.getCssVariable('--color-error'),
+      colorTextBase:   themeStore.getCssVariable('--color-text-primary'),
+      borderRadius:    Number(themeStore.getCssVariable('--radius-base')?.replace('px', ''))
+    }
+  },
+  { immediate: true }
+)</code></pre>
+
+<div class="callout callout-info">
+  <strong>扩展建议：</strong>当前仅同步了 7 个 Token。后续可根据需要增加
+  <code>colorBgContainer</code>、<code>colorBorder</code>、<code>fontSize</code> 等更多 Token 映射，
+  使 Ant Design 组件更精准地匹配自定义主题。
+</div>
+
+<!-- ============================================================ -->
+<h2 id="comp-overview" class="anchor">组件规范总览</h2>
+
+<table>
+  <tr><th>组件</th><th>类型</th><th>基于</th><th>核心能力</th></tr>
+  <tr><td>BasicTable</td><td>共享组件</td><td>a-table</td><td>搜索 + 分页 + 批量操作 + 行操作 + 可编辑单元格 + 列设置</td></tr>
+  <tr><td>BasicForm</td><td>共享组件</td><td>a-form</td><td>Schema 驱动、22 种字段类型、联动显隐、动态选项</td></tr>
+  <tr><td>BasicModal</td><td>共享组件</td><td>a-modal</td><td>可拖拽、自定义头部/底部</td></tr>
+  <tr><td>BasicDrawer</td><td>共享组件</td><td>a-drawer</td><td>双向绑定、自定义头部/底部</td></tr>
+  <tr><td>BasicTree</td><td>共享组件</td><td>a-tree</td><td>搜索高亮、Shift多选、右键菜单</td></tr>
+  <tr><td>BasicGraph</td><td>共享组件</td><td>AntV X6</td><td>画布 + 工具栏 + 插件系统</td></tr>
+  <tr><td>BasicTableGraph</td><td>共享组件</td><td>AntV X6</td><td>表血缘/追溯图</td></tr>
+  <tr><td>SvgIcon</td><td>共享组件</td><td>SVG Sprite</td><td>本地 SVG 图标</td></tr>
+  <tr><td>Icon</td><td>共享组件</td><td>unplugin-icons</td><td>动态图标解析 (mdi/ant-design)</td></tr>
+  <tr><td>MonacoEditor</td><td>共享组件</td><td>Monaco</td><td>代码编辑器</td></tr>
+  <tr><td>Loading</td><td>共享组件</td><td>a-spin</td><td>加载状态遮罩</td></tr>
+  <tr><td>ErrorMask</td><td>共享组件</td><td>—</td><td>错误状态 + 重试</td></tr>
+</table>
+
+<h3>使用原则</h3>
+<ul>
+  <li><strong>优先使用共享组件：</strong>表格、表单、弹窗等标准场景必须使用 Basic* 组件，不允许直接裸用 ant-design-vue 组件</li>
+  <li><strong>Props 透传：</strong>所有 Basic* 组件通过 <code>v-bind="$attrs"</code> 支持透传，可使用 ant-design-vue 原生 Props</li>
+  <li><strong>插槽透传：</strong>所有 Basic* 组件自动转发 <code>$slots</code></li>
+  <li><strong>通过 <code>defineExpose</code> 暴露命令式 API</strong></li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="comp-form" class="anchor">表单规范 (BasicForm)</h2>
+
+<h3>字段 Schema 定义</h3>
+<pre><code>const schema = [
+  {
+    field: 'name',              // 必填：字段 key
+    label: '名称',              // 必填：中文标签
+    component: 'text',          // 必填：组件类型（22 种之一）
+    value: '',                  // 初始值
+    required: true,             // 是否必填（自动生成 rules）
+    componentProps: {           // 透传给渲染组件
+      placeholder: '请输入名称',
+      maxlength: 50,
+    },
+    formItemProps: {            // 透传给 a-form-item
+      rules: [{ ... }]
+    },
+    options: [...],             // select/radio/checkbox 的选项
+    selectUrl: '/api/...',      // 远程选项 URL（支持 {field} 模板变量）
+    show: { otherField: 1 },    // 条件显隐：otherField === 1 时显示
+    tooltip: '提示文字',        // 问号提示
+  }
+]</code></pre>
+
+<h3>22 种组件类型</h3>
+<table>
+  <tr><th>类型</th><th>渲染组件</th><th>绑定方式</th></tr>
+  <tr><td><code>text</code></td><td>Input</td><td>v-model:value</td></tr>
+  <tr><td><code>textarea</code></td><td>Textarea</td><td>v-model:value</td></tr>
+  <tr><td><code>password</code></td><td>InputPassword</td><td>v-model:value</td></tr>
+  <tr><td><code>number</code></td><td>InputNumber</td><td>v-model:value</td></tr>
+  <tr><td><code>select</code></td><td>Select</td><td>v-model:value</td></tr>
+  <tr><td><code>multiSelect</code></td><td>Select (mode=multiple)</td><td>v-model:value</td></tr>
+  <tr><td><code>cascader</code></td><td>Cascader</td><td>v-model:value</td></tr>
+  <tr><td><code>treeselect</code></td><td>TreeSelect</td><td>v-model:value</td></tr>
+  <tr><td><code>datetime</code></td><td>DatePicker (date)</td><td>v-model:value</td></tr>
+  <tr><td><code>time</code></td><td>DatePicker (datetime)</td><td>v-model:value</td></tr>
+  <tr><td><code>datetimerange</code></td><td>RangePicker (date)</td><td>v-model:value</td></tr>
+  <tr><td><code>timerange</code></td><td>RangePicker (datetime)</td><td>v-model:value</td></tr>
+  <tr><td><code>year</code></td><td>DatePicker (year)</td><td>v-model:value</td></tr>
+  <tr><td><code>month</code></td><td>DatePicker (month)</td><td>v-model:value</td></tr>
+  <tr><td><code>radio</code></td><td>RadioGroup</td><td>v-model:value</td></tr>
+  <tr><td><code>checkbox</code></td><td>CheckboxGroup</td><td>v-model:checked</td></tr>
+  <tr><td><code>checkboxSingle</code></td><td>Checkbox</td><td>v-model:checked</td></tr>
+  <tr><td><code>switch</code></td><td>Switch</td><td>v-model:checked</td></tr>
+  <tr><td><code>cron</code></td><td>CronExpression (自定义)</td><td>v-model:value</td></tr>
+  <tr><td><code>colors</code></td><td>Colors (自定义)</td><td>v-model:value</td></tr>
+  <tr><td><code>dataIcon</code></td><td>DataIcon (自定义)</td><td>v-model:value</td></tr>
+  <tr><td><code>array</code></td><td>Tags (自定义)</td><td>v-model:value</td></tr>
+  <tr><td><code>file</code></td><td>a-upload</td><td>v-model:fileList</td></tr>
+</table>
+
+<h3>Props 优先级（自动合并）</h3>
+<pre><code>schema.item.componentProps  >  props.componentProps[component]  >  config.js defaultComponentProps</code></pre>
+
+<!-- ============================================================ -->
+<h2 id="comp-table" class="anchor">表格规范 (BasicTable)</h2>
+
+<h3>列定义</h3>
+<pre><code>const cols = [
+  { field: 'id',       header: 'ID',        width: 80 },
+  { field: 'name',     header: '名称',       sortable: true },
+  { field: 'status',   header: '状态',       option: { 0:'停用', 1:'启用' } },
+  { field: 'operation',header: '操作',       width: 180, fixed: 'right' },
+]</code></pre>
+
+<h3>数据加载模式</h3>
+<table>
+  <tr><th>模式</th><th>data 传值</th><th>适用场景</th></tr>
+  <tr><td>自动分页</td><td>Function: <code>({pageNumber, pageSize, filter}) => Promise</code></td><td>标准 CRUD 接口</td></tr>
+  <tr><td>手动控制</td><td>Array: <code>ref([...])</code></td><td>数据量小、前端分页</td></tr>
+</table>
+
+<h3>内置列类型</h3>
+<table>
+  <tr><th>类型</th><th>渲染效果</th></tr>
+  <tr><td><code>serial</code></td><td>自动序号（跨页连续）</td></tr>
+  <tr><td><code>operation</code></td><td>操作按钮列</td></tr>
+  <tr><td><code>percent</code></td><td>百分比格式化</td></tr>
+  <tr><td><code>number</code></td><td>千分位数字格式化</td></tr>
+  <tr><td><code>money</code></td><td>金额格式化</td></tr>
+  <tr><td><code>checkboxSingle</code></td><td>是/否显示</td></tr>
+  <tr><td><code>tag</code></td><td>标签显示（需配合 option）</td></tr>
+  <tr><td><code>datetime</code></td><td>日期时间格式化</td></tr>
+</table>
+
+<h3>操作按钮</h3>
+<pre><code>// 批量操作按钮（表格上方）
+const attachButtons = [{
+  name: '新建', icon: PlusOutlined,
+  onclick: ({ selectedRowKeys, selectedRows }) => { ... }
+}]
+
+// 行操作按钮（操作列中）
+const rowButtons = [{
+  name: '编辑', icon: 'edit',  // SvgIcon name
+  show: ({ record }) => record.status === 1,  // 条件显示
+  onclick: ({ text, record, index, column }) => { ... }
+}]</code></pre>
+
+<!-- ============================================================ -->
+<h2 id="comp-modal" class="anchor">弹窗规范 (BasicModal)</h2>
+
+<h3>标准用法</h3>
+<pre><code>&lt;BasicModal
+  v-model:visible="modalVisible"
+  modalTitle="编辑数据源"
+  width="600"
+  @ok="handleSubmit"
+  @cancel="modalVisible = false"
+&gt;
+  &lt;BasicForm ref="formRef" :schema="formSchema" :model="formData" /&gt;
+&lt;/BasicModal&gt;</code></pre>
+
+<h3>技术要点</h3>
+<ul>
+  <li>标题栏可拖拽（基于 <code>@vueuse/core</code> 的 <code>useDraggable</code>）</li>
+  <li>支持 <code>#title</code>、<code>#footer</code> 插槽覆盖</li>
+  <li>所有 ant-design-vue a-modal Props 通过 <code>$attrs</code> 透传</li>
+  <li><code>SafeConfirmModal</code>（安全确认弹窗）需要用户手动输入确认文字才能操作，适用于删除等危险操作</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="comp-tree" class="anchor">树规范 (BasicTree)</h2>
+
+<pre><code>&lt;BasicTree
+  v-model:treeData="treeData"
+  v-model:checkedKeys="checkedKeys"
+  v-model:expandedKeys="expandedKeys"
+  :searchValue="searchText"
+  :rightMenuList="contextMenuItems"
+  :showActionIcon="true"
+  checkable
+/&gt;</code></pre>
+
+<ul>
+  <li>内置搜索：过滤并高亮匹配节点</li>
+  <li>Shift 批量选择：支持范围多选</li>
+  <li>右键菜单：通过 <code>rightMenuList</code> 配置（支持 Function 按节点定制）</li>
+  <li>操作图标：通过 <code>showActionIcon</code> 在每个节点后显示操作入口</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="comp-drawer" class="anchor">抽屉规范 (BasicDrawer)</h2>
+
+<pre><code>&lt;BasicDrawer
+  v-model:visible="drawerVisible"
+  title="详情"
+  @close="drawerVisible = false"
+&gt;
+  &lt;template #extra&gt;...&lt;/template&gt;
+  &lt;template #footer&gt;...&lt;/template&gt;
+&lt;/BasicDrawer&gt;</code></pre>
+
+<!-- ============================================================ -->
+<h2 id="comp-graph" class="anchor">图编辑规范 (BasicGraph)</h2>
+
+<p>基于 AntV X6 封装，适用于血缘分析、DAG 编排、思维导图等场景：</p>
+<ul>
+  <li><strong>插件系统：</strong>ContextMenuPlugin（右键菜单）、GraphTreePlugin（树形布局）、GroupPlugin（节点分组）、ToolPlugin（工具栏）</li>
+  <li><strong>工具栏：</strong>放大/缩小/适应画布/撤销/重做</li>
+  <li><strong>左侧面板：</strong>可拖拽调整宽度</li>
+  <li><strong>键盘快捷键：</strong>通过 <code>useGraphKeyboard</code> 支持</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="comp-icons" class="anchor">图标系统</h2>
+
+<p>项目支持三种图标使用方式：</p>
+
+<table>
+  <tr><th>方式</th><th>组件</th><th>适用场景</th></tr>
+  <tr><td>SVG Sprite</td><td><code>&lt;SvgIcon name="edit" size="18px" /&gt;</code></td><td>项目自定义图标（位于 <code>src/assets/icons/</code>）</td></tr>
+  <tr><td>Iconify</td><td><code>&lt;Icon icon="mdi:home" /&gt;</code></td><td>通用图标库（mdi + ant-design 集合）</td></tr>
+  <tr><td>Ant Design Icons</td><td><code>&lt;PlusOutlined /&gt;</code></td><td>Ant Design 内置图标</td></tr>
+</table>
+
+<div class="callout callout-info">
+  <strong>优先级：</strong>新功能优先使用项目已有的 SVG 图标，若无匹配则使用 Ant Design Icons，
+  最后才引入外部图标库图标。所有图标颜色应使用 <code>--color-text-*</code> 或 <code>--color-primary</code> 变量，
+  禁止硬编码 <code>fill="#xxx"</code>。
+</div>
+
+<!-- ============================================================ -->
+<h2 id="layout-standard" class="anchor">标准布局</h2>
+
+<h3>布局结构</h3>
+<pre><code>┌──────────────────────────────────────────────────────────┐
+│  Header (98px)                                            │
+│  Logo + 顶部菜单 + 主题切换                                │
+├────────┬─────────────────────────────────────────────────┤
+│ Sider  │  Tab Bar（页签导航）                              │
+│ 240px  ├─────────────────────────────────────────────────┤
+│        │  Content（内容区）                                 │
+│ 菜单   │    - padding: 0（内容区自身控制内边距）              │
+│        │    - overflow-y: auto（内容区独立滚动）             │
+│        │    - box-shadow: 蓝色发光边框                      │
+│        │    - 背景: 容器色 + 背景图片                        │
+├────────┴─────────────────────────────────────────────────┤
+│  Footer (30px) — © 2026 ISCAS Copyright V2.0             │
+└──────────────────────────────────────────────────────────┘</code></pre>
+
+<h3>页面内容区的标准结构</h3>
+<pre><code>// 搜索 + 表格（最常用）
+&lt;BasicTable
+  :cols="columns"
+  :data="loadData"
+  :searchSchema="searchFields"
+  :formValue="searchForm"
+  :attachButtons="[{ name:'新建', onclick:... }]"
+  :rowButtons="[{ name:'编辑', onclick:... }]"
+  rowKey="id"
+/&gt;
+
+// 表格所在容器：内容区中使用 table-wrapper 类
+.table-wrapper {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+}</code></pre>
+
+<h3>Keep-Alive 缓存策略</h3>
+<p>使用 <code>keep-alive</code> 缓存已打开的 Tab 页。每个 Tab 维护独立的 <code>reloadKey</code>，
+当需要刷新时递增该 Key，迫使组件重建。</p>
+
+<!-- ============================================================ -->
+<h2 id="layout-responsive" class="anchor">响应式适配</h2>
+
+<table>
+  <tr><th>要素</th><th>方案</th></tr>
+  <tr><td>基准分辨率</td><td>1920×1080</td></tr>
+  <tr><td>适配方式</td><td>rem 自适应（<code>.rem(@px)</code> Mixin：<code>rem = px / 192 * 1rem</code>）</td></tr>
+  <tr><td>WindiCSS 断点</td><td>sm: 576 / md: 768 / lg: 992 / xl: 1200 / 2xl: 1600</td></tr>
+  <tr><td>最小支持</td><td>1366px 宽度</td></tr>
+  <tr><td>弹性布局</td><td>Flexbox：侧边栏固定宽度，内容区 flex:1 填充剩余空间</td></tr>
+  <tr><td>表格高度</td><td>flex:1 + height:0 技巧：表格撑满内容区剩余高度并自身滚动</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="extend-theme" class="anchor">扩展指南：主题</h2>
+
+<h3>推荐：基于现有主题微调</h3>
+<ol>
+  <li>在 <code>default.less</code> 中找到要调整的变量</li>
+  <li>在目标主题文件中修改对应变量的值</li>
+  <li>验证 4 个核心页面（表格页 / 弹窗页 / 树页 / 同步配置页）</li>
+</ol>
+
+<h3>进阶：新增完整主题</h3>
+<p>参见 <a href="#theme-new">新建主题指南</a>。核心要点：</p>
+<ol>
+  <li>完整覆盖所有 130+ 变量</li>
+  <li>亮/暗色系的对比度策略要统一</li>
+  <li>背景图片变量可设为 <code>none</code></li>
+</ol>
+
+<h3>进阶：增加新的组件 Token</h3>
+<ol>
+  <li>在规范中确定 Token 命名（<code>--comp-{component}-{property}</code>）</li>
+  <li>在 4 个主题文件中分别添加该变量（保持相同的变量名，不同的值）</li>
+  <li>在对应组件的 Ant Design 覆盖样式或组件样式中使用 <code>var(--comp-xxx)</code></li>
+  <li>若需联动 Ant Design 内部 Token，在 <code>layouts/index.vue</code> 的 watch 中添加映射</li>
+</ol>
+
+<!-- ============================================================ -->
+<h2 id="extend-component" class="anchor">扩展指南：组件</h2>
+
+<h3>新增共享组件</h3>
+<ol>
+  <li>在 <code>src/components/</code> 下创建目录</li>
+  <li>组件必须导出清晰的 Props / Events / Slots / Expose</li>
+  <li>若为 Ant Design 组件的二次封装，遵循 Basic* 命名约定：<code>Basic{Name}.vue</code></li>
+  <li>通过 <code>v-bind="$attrs"</code> 透传未声明 Props</li>
+  <li>通过 <code>v-for="$slots"</code> 透传插槽</li>
+  <li>通过 <code>defineExpose</code> 暴露命令式方法</li>
+</ol>
+
+<h3>新增表单组件类型</h3>
+<ol>
+  <li>在 <code>src/components/Form/config.js</code> 的 <code>componentsMap</code> 中注册</li>
+  <li>在 <code>defaultComponentProps</code> 中定义默认属性</li>
+  <li>确保组件支持 <code>v-model:value</code> 或 <code>v-model:checked</code></li>
+</ol>
+
+<h3>代码模板参考</h3>
+<pre><code>// 新建共享组件的标准结构
+&lt;template&gt;
+  &lt;div class="basic-xxx-wrapper"&gt;
+    &lt;a-xxx v-bind="$attrs" v-model:open="internalVisible"&gt;
+      &lt;slot /&gt;
+      &lt;!-- 插槽透传 --&gt;
+      &lt;template v-for="(_, name) in $slots" v-slot:[name]="slotData"&gt;
+        &lt;slot :name="name" v-bind="slotData" /&gt;
+      &lt;/template&gt;
+    &lt;/a-xxx&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+const props = defineProps({ /* ... */ })
+const emits = defineEmits([/* ... */])
+defineExpose({ /* 命令式 API */ })
+&lt;/script&gt;
+
+&lt;style lang="less" scoped&gt;
+  // 使用 var(--comp-xxx) 引用组件 Token
+&lt;/style&gt;</code></pre>
+
+<!-- ============================================================ -->
+<h2 id="migration" class="anchor">变量迁移对照表</h2>
+
+<p>以下为当前变量名与规范推荐变量名的对照表。<span class="badge badge-info">建议</span> 新代码使用规范命名，
+旧变量保留向后兼容（在主题文件中同时定义两套名称）。</p>
+
+<div class="callout callout-info">
+  <strong>迁移策略：</strong>不要求一次性全部重命名。建议按模块逐步迁移，
+  每个迭代将 1-2 个模块的变量名从旧命名切换到新命名。
+  过渡期间在主题文件中同时定义两套变量名（值相同），确保旧代码不受影响。
+</div>
+
+<table>
+  <tr><th>旧变量名（当前）</th><th>新变量名（规范）</th><th>层级</th></tr>
+  <tr><td><code>--primary-color</code></td><td><code>--color-primary</code></td><td>Global</td></tr>
+  <tr><td><code>--success-color</code></td><td><code>--color-success</code></td><td>Global</td></tr>
+  <tr><td><code>--warning-color</code></td><td><code>--color-warning</code></td><td>Global</td></tr>
+  <tr><td><code>--error-color</code></td><td><code>--color-error</code></td><td>Global</td></tr>
+  <tr><td><code>--info-color</code></td><td><code>--color-info</code></td><td>Global</td></tr>
+  <tr><td><code>--bg-color</code></td><td><code>--color-bg-base</code></td><td>Global</td></tr>
+  <tr><td><code>--bg-color-secondary</code></td><td><code>--color-bg-container</code></td><td>Global</td></tr>
+  <tr><td><code>--bg-color-tertiary</code></td><td><code>--color-bg-tertiary</code></td><td>Global</td></tr>
+  <tr><td><code>--text-color</code></td><td><code>--color-text-primary</code></td><td>Global</td></tr>
+  <tr><td><code>--text-color-secondary</code></td><td><code>--color-text-secondary</code></td><td>Global</td></tr>
+  <tr><td><code>--text-color-disabled</code></td><td><code>--color-text-disabled</code></td><td>Global</td></tr>
+  <tr><td><code>--border-color</code></td><td><code>--color-border-base</code></td><td>Global</td></tr>
+  <tr><td><code>--border-radius</code></td><td><code>--radius-base</code></td><td>Global</td></tr>
+  <tr><td><code>--box-shadow</code></td><td><code>--shadow-base</code></td><td>Global</td></tr>
+  <tr><td><code>--box-shadow-secondary</code></td><td><code>--shadow-md</code></td><td>Global</td></tr>
+  <tr><td><code>--link-color</code></td><td><code>--color-link</code></td><td>Global</td></tr>
+  <tr><td><code>--link-hover-color</code></td><td><code>--color-link-hover</code></td><td>Global</td></tr>
+  <tr><td><code>--heading-color</code></td><td><code>--color-text-primary</code>（合并）</td><td>Global</td></tr>
+  <tr><td><code>--color-text-placeholder</code></td><td><code>--color-text-tertiary</code></td><td>Global</td></tr>
+  <tr><td><code>--icon-color</code></td><td><code>--color-text-secondary</code>（合并）</td><td>Global</td></tr>
+  <tr><td><code>--bg-image</code></td><td><code>--layout-bg-image</code></td><td>Layout</td></tr>
+  <tr><td><code>--content-bg-image</code></td><td><code>--layout-content-bg-image</code></td><td>Layout</td></tr>
+  <tr><td><code>--menu-text-color</code></td><td><code>--comp-menu-text</code></td><td>Component</td></tr>
+  <tr><td><code>--menu-active-bg-color</code></td><td><code>--comp-menu-active-bg</code></td><td>Component</td></tr>
+  <tr><td><code>--menu-hover-text-color</code></td><td><code>--comp-menu-hover-text</code></td><td>Component</td></tr>
+  <tr><td><code>--menu-hover-bg-color</code></td><td><code>--comp-menu-hover-bg</code></td><td>Component</td></tr>
+  <tr><td><code>--sider-bg-color</code></td><td><code>--comp-menu-sider-bg</code></td><td>Component</td></tr>
+  <tr><td><code>--table-border-color</code></td><td><code>--comp-table-border-color</code></td><td>Component</td></tr>
+  <tr><td><code>--table-th-bg-color</code></td><td><code>--comp-table-th-bg</code></td><td>Component</td></tr>
+  <tr><td><code>--table-th-text-color</code></td><td><code>--comp-table-th-text</code></td><td>Component</td></tr>
+  <tr><td><code>--table-td-text-color</code></td><td><code>--comp-table-td-text</code></td><td>Component</td></tr>
+  <tr><td><code>--table-td-border-color</code></td><td><code>--comp-table-td-border</code></td><td>Component</td></tr>
+  <tr><td><code>--modal-bg-color</code></td><td><code>--comp-modal-bg</code></td><td>Component</td></tr>
+  <tr><td><code>--modal-header-bg-color</code></td><td><code>--comp-modal-header-bg</code></td><td>Component</td></tr>
+  <tr><td><code>--modal-header-title-color</code></td><td><code>--comp-modal-header-title</code></td><td>Component</td></tr>
+  <tr><td><code>--tab-nav-text-color</code></td><td><code>--comp-tabs-text</code></td><td>Component</td></tr>
+  <tr><td><code>--tab-nav-bg-color</code></td><td><code>--comp-tabs-bg</code></td><td>Component</td></tr>
+  <tr><td><code>--tab-nav-active-text-color</code></td><td><code>--comp-tabs-active-text</code></td><td>Component</td></tr>
+  <tr><td><code>--tree-node-text-color</code></td><td><code>--comp-tree-node-text</code></td><td>Component</td></tr>
+  <tr><td><code>--tree-node-selected-bg-color</code></td><td><code>--comp-tree-node-selected-bg</code></td><td>Component</td></tr>
+  <tr><td><code>--scroll-bar-color</code></td><td><code>--comp-scrollbar-thumb</code></td><td>Component</td></tr>
+  <tr><td><code>--scroll-bar-bg-color</code></td><td><code>--comp-scrollbar-track-bg</code></td><td>Component</td></tr>
+  <tr><td><code>--data-sync-arrow-color</code></td><td><code>--feat-datasync-arrow-color</code></td><td>Feature</td></tr>
+  <tr><td><code>--data-sync-empty-text-color</code></td><td><code>--feat-datasync-empty-text</code></td><td>Feature</td></tr>
+  <tr><td><code>--mindmap-bg-color</code></td><td><code>--feat-mindmap-bg</code></td><td>Feature</td></tr>
+  <tr><td><code>--mindmap-dot-color</code></td><td><code>--feat-mindmap-dot-color</code></td><td>Feature</td></tr>
+  <tr><td><code>--data-domain-bg-color</code></td><td><code>--feat-datadomain-bg</code></td><td>Feature</td></tr>
+  <tr><td><code>--data-warehouse-card-label-color</code></td><td><code>--feat-datawarehouse-card-label</code></td><td>Feature</td></tr>
+  <tr><td><code>--data-collect-card-bg-color</code></td><td><code>--feat-datacollect-card-bg</code></td><td>Feature</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="role-guide" class="anchor">角色使用指南</h2>
+
+<p>本规范面向不同角色有不同的阅读重点和使用方式。以下按角色说明如何高效使用本文档。</p>
+
+<h3>👤 前端开发工程师</h3>
+<p><strong>你是本规范的主要使用者。</strong>日常开发中需要频繁参考 Token 定义和组件规范。</p>
+
+<h4>日常开发流程</h4>
+<ol>
+  <li><strong>写样式前：</strong>先查 <a href="#token-color">色彩 Token</a> → <a href="#token-component">组件 Token</a> → <a href="#token-feature">业务 Token</a>，确认所需变量已存在</li>
+  <li><strong>写组件时：</strong>优先使用 <code>BasicTable</code> / <code>BasicForm</code> / <code>BasicModal</code>，参考 <a href="#comp-overview">组件规范总览</a></li>
+  <li><strong>写表单时：</strong>查 <a href="#comp-form">表单规范</a> 确认 22 种组件类型和 Schema 写法</li>
+  <li><strong>颜色硬编码零容忍：</strong>所有颜色必须用 <code>var(--xxx)</code>，不确定用哪个 Token 时查本文档</li>
+  <li><strong>提交前：</strong>在 4 套主题下快速过一遍页面，确保无颜色异常</li>
+</ol>
+
+<h4>常用速查节点</h4>
+<table>
+  <tr><th>场景</th><th>查看章节</th></tr>
+  <tr><td>不确定用什么颜色变量</td><td><a href="#token-color">色彩 Token</a>、<a href="#token-component">组件 Token</a></td></tr>
+  <tr><td>不确定字体大小/字重</td><td><a href="#token-typography">字体 Token</a></td></tr>
+  <tr><td>不确定间距该用多少</td><td><a href="#token-spacing">间距 Token</a></td></tr>
+  <tr><td>新建一个 CRUD 页面</td><td><a href="#comp-table">表格规范</a> + <a href="#comp-form">表单规范</a> + <a href="#comp-modal">弹窗规范</a></td></tr>
+  <tr><td>新增主题变量或扩展组件</td><td><a href="#extend-theme">扩展指南：主题</a>、<a href="#extend-component">扩展指南：组件</a></td></tr>
+  <tr><td>旧代码重构改用新 Token</td><td><a href="#migration">变量迁移对照表</a></td></tr>
+  <tr><td>调 Ant Design 组件内部样式</td><td><a href="#theme-antd">Ant Design 主题联动</a> + <code>ant_design_overwrite/</code> 目录</td></tr>
+</table>
+
+<div class="callout callout-warning">
+  <strong>开发易犯错误：</strong>
+  <ul style="margin:8px 0 0 16px;">
+    <li>❌ 在组件 <code>&lt;style scoped&gt;</code> 中写 <code>color: #2575f5</code></li>
+    <li>❌ 直接裸用 <code>&lt;a-table&gt;</code> 而不用 <code>&lt;BasicTable&gt;</code></li>
+    <li>❌ 新增业务 Token 时随意命名，不使用 <code>--feat-{模块}-{属性}</code> 前缀</li>
+    <li>❌ 只在 default 主题下验证，忽略其他三套主题</li>
+  </ul>
+</div>
+
+<h3>🎨 UI/UX 设计师</h3>
+<p><strong>你是规范的共同制定者和设计决策者。</strong>主要负责色彩、间距、交互模式的统一和评审。</p>
+
+<h4>设计师的工作方式</h4>
+<ol>
+  <li><strong>设计新页面/功能：</strong>以 <a href="#token-color">色彩 Token</a> 和 <a href="#token-typography">字体 Token</a> 为设计起点，从已有 Token 色板中选取颜色</li>
+  <li><strong>设计评审：</strong>使用 <a href="#appendix-checklist">规范检查清单</a> 逐项核对开发交付物</li>
+  <li><strong>新增颜色：</strong>如需新颜色，先在 Global Token 色板中找最接近的，确需新增时与前端约定 Token 名称并同步更新本文档</li>
+  <li><strong>主题设计：</strong>参照 <a href="#theme-four">四套主题对比</a> 理解每套主题的设计思路，新主题需保证完整覆盖</li>
+</ol>
+
+<h4>设计师重点关注章节</h4>
+<table>
+  <tr><th>关注点</th><th>章节</th></tr>
+  <tr><td>色彩系统和色板</td><td><a href="#token-color">色彩 Token</a></td></tr>
+  <tr><td>四套主题的视觉策略</td><td><a href="#theme-four">四套主题对比</a></td></tr>
+  <tr><td>字体层级和排版</td><td><a href="#token-typography">字体 Token</a></td></tr>
+  <tr><td>间距和布局规则</td><td><a href="#token-spacing">间距 Token</a>、<a href="#layout-standard">标准布局</a></td></tr>
+  <tr><td>圆角和阴影体系</td><td><a href="#token-radius">圆角 Token</a>、<a href="#token-shadow">阴影 Token</a></td></tr>
+  <tr><td>组件交互规范</td><td><a href="#comp-overview">组件规范总览</a></td></tr>
+  <tr><td>新增主题的设计步骤</td><td><a href="#theme-new">新建主题指南</a></td></tr>
+  <tr><td>设计交付检查</td><td><a href="#appendix-checklist">规范检查清单</a></td></tr>
+</table>
+
+<h3>🏗️ 技术负责人 / 架构师</h3>
+<p><strong>你是规范落地的推动者和架构决策者。</strong>关注系统扩展性、迁移策略和团队规范执行。</p>
+
+<h4>关键职责</h4>
+<ol>
+  <li><strong>规范评审与迭代：</strong>当规范与实际需求冲突时，主导规范更新</li>
+  <li><strong>Token 迁移推进：</strong>制定渐进式迁移计划，按模块逐步将旧变量切换到 <a href="#migration">新命名</a></li>
+  <li><strong>新增主题审批：</strong>审查新主题是否完整覆盖所有 Token、对比度是否达标</li>
+  <li><strong>组件库治理：</strong>确保新增共享组件遵循 Basic* 命名约定和 <a href="#extend-component">扩展规范</a></li>
+  <li><strong>代码评审关注点：</strong>在 PR Review 中重点检查颜色硬编码、组件滥用、Token 命名不规范</li>
+</ol>
+
+<h4>架构决策速查</h4>
+<table>
+  <tr><th>决策场景</th><th>参考章节</th></tr>
+  <tr><td>是否新增全局 Token vs 组件 Token vs 业务 Token</td><td><a href="#token-overview">Token 层级总览</a></td></tr>
+  <tr><td>评估新增主题的工作量</td><td><a href="#theme-new">新建主题指南</a></td></tr>
+  <tr><td>第三方组件库版本升级影响</td><td><a href="#tech-stack">技术栈</a> + <a href="#theme-antd">Ant Design 主题联动</a></td></tr>
+  <tr><td>规划 Token 迁移的迭代节奏</td><td><a href="#migration">变量迁移对照表</a></td></tr>
+  <tr><td>判断组件是否该提升为共享组件</td><td><a href="#extend-component">扩展指南：组件</a></td></tr>
+</table>
+
+<h3>📋 项目经理 / 产品经理</h3>
+<p><strong>你不需要深究技术细节。</strong>了解规范的存在和核心原则即可，主要用于以下场景：</p>
+<ol>
+  <li><strong>新需求评估：</strong>判断新功能是否涉及新增主题、新增组件类型等需要额外排期的工作</li>
+  <li><strong>验收交付物：</strong>确认页面在四套主题下视觉一致，参考 <a href="#appendix-checklist">规范检查清单</a></li>
+  <li><strong>理解设计决策：</strong>阅读 <a href="#principles">设计原则</a> 了解平台的 5 条核心设计理念</li>
+</ol>
+
+<div class="callout callout-info">
+  <strong>一句话总结：</strong>开发查 Token 和组件用法，设计师守色彩和视觉一致性，
+  架构师推规范和治理，项目经理了解原则即可。
+</div>
+
+<!-- ============================================================ -->
+<h2 id="sync-guide" class="anchor">前后端协同维护规范</h2>
+
+<p>设计规范的有效性取决于持续的维护和更新。以下是前端开发与 UI 设计师协同维护规范的机制和流程。</p>
+
+<h3>协同原则</h3>
+<ol>
+  <li><strong>规范是唯一真相源：</strong>设计稿和代码必须以本文档定义的 Token 和组件为准，不一致时应更新本文档</li>
+  <li><strong>双向驱动：</strong>设计师提出的视觉变更 → 影响 Token 定义；开发提出的组件封装 → 影响组件规范</li>
+  <li><strong>变化可追溯：</strong>文档放在 Git 仓库中，所有变更通过 PR 评审，记录修改原因和影响范围</li>
+</ol>
+
+<h3>场景一：设计师新增/修改视觉风格</h3>
+<div class="callout callout-info">
+  <strong>触发条件：</strong>UI 设计师在 Figma/MasterGo 中调整了某个颜色、字体大小或间距，
+  需要同步到代码和规范文档。
+</div>
+<h4>流程</h4>
+<ol>
+  <li><strong>设计师</strong>在 Figma/MasterGo 中标注变更涉及的设计变量名（Token 名称），导出变更清单</li>
+  <li><strong>设计师</strong>在本文档中找到对应 Token（如 <code>--color-primary</code>），在 GitLab/PR 中提交文档更新</li>
+  <li><strong>前端开发</strong>根据文档变更，在 4 个主题 Less 文件中修改对应 CSS 变量值</li>
+  <li><strong>前端开发</strong>在 4 套主题下截图验证，贴到 PR 评论中</li>
+  <li><strong>设计师</strong>Review 截图，确认视觉还原度后 Approve PR</li>
+</ol>
+<div class="callout callout-warning">
+  <strong>关键约定：</strong>设计师不能直接给开发一个 "这个按钮换个蓝色" 的口头描述。
+  必须给出 Token 名称和新色值，例如：「<code>--color-primary</code> 从 <code>#0D6EF0</code> 改为 <code>#1677FF</code>」。
+  这样做的好处是：一次修改，四套主题、所有引用该 Token 的组件自动生效。
+</div>
+
+<h3>场景二：开发新增组件或页面</h3>
+<div class="callout callout-info">
+  <strong>触发条件：</strong>前端开发新增了一个功能模块或共享组件，
+  其中涉及新的视觉样式（颜色、间距、状态等）。
+</div>
+<h4>流程</h4>
+<ol>
+  <li><strong>前端开发</strong>先判断新样式能否用现有 Token 覆盖：
+    <ul>
+      <li>能用 → 直接用，无需更新文档</li>
+      <li>不能用 → 评估是新增 Feature Token 还是 Component Token</li>
+    </ul>
+  </li>
+  <li><strong>前端开发</strong>在本文档中新增 Token 定义（按命名规范），在 4 个主题文件中添加对应变量</li>
+  <li><strong>前端开发</strong>在 PR 描述中 @设计师，附上 Token 新增说明和页面截图</li>
+  <li><strong>设计师</strong>确认新 Token 的命名和默认值符合设计意图，Review 通过</li>
+</ol>
+
+<h3>场景三：规范文档本身的迭代</h3>
+<div class="callout callout-info">
+  <strong>触发条件：</strong>规范需要调整（如新增章节、修改 Token 层级、调整组件 API 等）。
+</div>
+<h4>流程</h4>
+<ol>
+  <li>在 GitLab 上创建 Issue，描述变更原因和影响范围</li>
+  <li>负责人（前端 Leader 或设计 Lead）Assign 给对应人员</li>
+  <li>修改文档 → 提交 PR → 前端 Leader + 设计 Lead 双人 Review</li>
+  <li>合并后通知全员（群消息 / 周会同步）</li>
+</ol>
+
+<h3>日常协同工具链</h3>
+<table>
+  <tr><th>环节</th><th>工具</th><th>产出</th></tr>
+  <tr><td>设计稿</td><td>MasterGo / Figma</td><td>页面设计稿 + 组件标注</td></tr>
+  <tr><td>设计 Token 管理</td><td>本文档（HTML）+ Less 变量文件</td><td>Token 定义 + 四主题色值</td></tr>
+  <tr><td>组件文档</td><td><code>docs/knowledge-base/</code> YAML/模板</td><td>Props/Events/Slots 参考</td></tr>
+  <tr><td>代码实现</td><td>VS Code + 项目源码</td><td>遵循规范的 Vue 组件</td></tr>
+  <tr><td>变更追踪</td><td>GitLab PR + Issue</td><td>变更记录 + 评审意见</td></tr>
+  <tr><td>视觉验收</td><td>本地截图 / 截图对比工具</td><td>4 主题验证截图</td></tr>
+</table>
+
+<h3>Token 变更的影响范围自查</h3>
+<p>修改一个 Token 前，请用以下方法自查影响范围：</p>
+<pre><code># 在项目根目录执行，查看哪些文件引用了该 Token
+grep -r "var(--color-primary)" src/ --include="*.vue" --include="*.less" --include="*.css"
+
+# 输出示例：
+# src/assets/styles/themes/default.less:  --color-primary: #0D6EF0;
+# src/assets/styles/themes/dark.less:     --color-primary: #1A5E72;
+# src/components/Table/BasicTable.vue:    color: var(--color-primary);
+# src/layouts/index.vue:                  colorPrimary: themeStore.getCssVariable('--color-primary')</code></pre>
+
+<h3>规范文档的版本管理</h3>
+<table>
+  <tr><th>操作</th><th>管理方式</th></tr>
+  <tr><td>文档存储</td><td>随项目 Git 仓库一起管理（<code>docs/design-specification.html</code>）</td></tr>
+  <tr><td>版本号</td><td>文档标题标注版本（当前 v2.0），大版本对应 Token 体系变更，小版本对应增补</td></tr>
+  <tr><td>更新日志</td><td>建议在文档末尾追加 Changelog 表格，记录每次修改的日期、作者、内容</td></tr>
+  <tr><td>全员通知</td><td>重大规范变更通过团队周会同步，日常修补通过 GitLab PR 通知</td></tr>
+  <tr><td>历史版本</td><td>Git 历史天然归档，重大版本可打 Tag（如 <code>v2.0-design-spec</code>）</td></tr>
+</table>
+
+<div class="callout callout-success">
+  <strong>理想状态：</strong>设计师修改 Figma 颜色 → 知道对应哪个 Token →
+  更新本文档的 Token 表 → 开发同步到 4 个 Less 文件 → 所有页面自动生效。
+  这个流程跑通后，设计规范就成为真正的「活的」设计系统，而非一次性的静态文档。
+</div>
+
+<!-- ============================================================ -->
+<h2 id="appendix-files" class="anchor">附录 A：关键文件索引</h2>
+
+<table>
+  <tr><th>文件路径</th><th>说明</th></tr>
+  <tr><td><code>src/store/modules/theme.js</code></td><td>主题状态管理（切换/持久化/CSS变量读取）</td></tr>
+  <tr><td><code>src/assets/styles/themes/default.less</code></td><td>默认主题变量（信息管理，130+变量）</td></tr>
+  <tr><td><code>src/assets/styles/themes/dark.less</code></td><td>暗黑主题变量</td></tr>
+  <tr><td><code>src/assets/styles/themes/blue.less</code></td><td>蓝色主题变量</td></tr>
+  <tr><td><code>src/assets/styles/themes/grey.less</code></td><td>灰色主题变量</td></tr>
+  <tr><td><code>src/assets/styles/themes/themes.less</code></td><td>主题全局样式（布局/滚动条/菜单/过渡动画）</td></tr>
+  <tr><td><code>src/assets/styles/main.less</code></td><td>样式入口文件</td></tr>
+  <tr><td><code>src/assets/styles/common/index.less</code></td><td>公共 Mixin + 字体声明 + 布局常量</td></tr>
+  <tr><td><code>src/assets/styles/ant_design_overwrite/</code></td><td>Ant Design 组件样式覆盖（18个文件）</td></tr>
+  <tr><td><code>src/layouts/index.vue</code></td><td>根布局（ConfigProvider主题绑定）</td></tr>
+  <tr><td><code>src/layouts/theme/ThemeSwitch.vue</code></td><td>主题切换下拉组件</td></tr>
+  <tr><td><code>src/components/Table/BasicTable.vue</code></td><td>表格组件（核心）</td></tr>
+  <tr><td><code>src/components/Form/BasicForm.vue</code></td><td>表单组件（核心）</td></tr>
+  <tr><td><code>src/components/Form/config.js</code></td><td>22种表单组件类型映射 + 默认Props</td></tr>
+  <tr><td><code>src/components/Modal/BasicModal.vue</code></td><td>弹窗组件（可拖拽）</td></tr>
+  <tr><td><code>src/components/Drawer/BasicDrawer.vue</code></td><td>抽屉组件</td></tr>
+  <tr><td><code>src/components/Tree/BasicTree.vue</code></td><td>树形组件</td></tr>
+  <tr><td><code>src/components/Graph/BasicGraph.vue</code></td><td>图编辑组件（X6）</td></tr>
+  <tr><td><code>docs/knowledge-base/project-conventions.yaml</code></td><td>项目编码规范（API参考）</td></tr>
+  <tr><td><code>docs/knowledge-base/component-mapping.yaml</code></td><td>Figma → 项目组件映射</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="appendix-checklist" class="anchor">附录 B：规范检查清单</h2>
+
+<h3>新增页面 / 功能时</h3>
+<ol>
+  <li>✅ 优先使用 <code>BasicTable</code> / <code>BasicForm</code> / <code>BasicModal</code> 等共享组件</li>
+  <li>✅ 所有颜色使用 <code>var(--xxx)</code> 引用 Token，禁止硬编码</li>
+  <li>✅ 在 4 套主题下验证页面显示正常</li>
+  <li>✅ 使用 WindiCSS 原子类（<code>flex</code>、<code>gap-10px</code> 等）而非内联样式</li>
+  <li>✅ 自定义滚动区域使用 <code>.scrollbar()</code> Mixin</li>
+  <li>✅ 表单字段必须有清晰的 <code>label</code> 和 <code>placeholder</code></li>
+  <li>✅ 表格操作列按钮间距为 24px</li>
+</ol>
+
+<h3>新增主题时</h3>
+<ol>
+  <li>✅ 覆盖全部 130+ CSS 变量</li>
+  <li>✅ 亮/暗色对比度满足 WCAG AA</li>
+  <li>✅ 核心页面（表格/弹窗/树/同步）验证通过</li>
+  <li>✅ 在 Theme Store 中注册</li>
+  <li>✅ 在 <code>main.less</code> 中导入</li>
+</ol>
+
+<h3>新增共享组件时</h3>
+<ol>
+  <li>✅ 遵循 <code>Basic{Name}.vue</code> 命名</li>
+  <li>✅ 透传 <code>$attrs</code> 和 <code>$slots</code></li>
+  <li>✅ 通过 <code>defineExpose</code> 暴露必要 API</li>
+  <li>✅ 样式使用 CSS 变量，支持主题切换</li>
+  <li>✅ 在 Demo 页面添加示例</li>
+</ol>
+
+<hr>
+<p style="color: #001f51; opacity: 0.35; font-size: 0.85rem; text-align: center; margin-top: 48px;">
+  数据中台平台 设计规范 v2.0 · 最后更新 2026-07-14 · 基于项目源码分析生成
+</p>
+
+</main>
+</body>
+</html>
