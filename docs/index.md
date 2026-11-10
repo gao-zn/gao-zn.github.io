@@ -26,6 +26,14 @@ features:
     link: /proposals
     linkText: 查看方案
 
+  - icon: 📊
+    title: 数据中台功能讲解
+    details: 从数据生产、治理到资产供给与知识应用，了解平台全流程及各模块功能
+    link: /data-platform-guide.html
+    linkText: 查看功能讲解（新标签页）
+    target: _blank
+    rel: noopener noreferrer
+
   - icon: 👨‍💻
     title: 关于我
     details: 一名热爱技术的前端工程师，专注于构建可维护、高性能的 Web 应用
